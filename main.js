@@ -35,7 +35,7 @@ const abrir = (f, n) => {
 dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('.x')) dlg.close(); });
 dlg.addEventListener('close', () => reset());
 
-// ── Zoom en la foto del diálogo: mouse = lupa que sigue el cursor · táctil = toque para acercar y arrastrar para mover
+// ── Zoom en la foto del diálogo: toque/clic para acercar y alejar · arrastrar para mover (mouse y táctil funcionan igual)
 const zm = $('.zm', dlg), zi = $('img', zm), ZOOM = 2.4;
 let zs = 1, tx = 0, ty = 0, dr = null;
 function pintar() { zi.style.transform = zs === 1 ? '' : `translate(${tx}px,${ty}px) scale(${zs})`; zm.classList.toggle('z', zs !== 1); }
@@ -43,17 +43,15 @@ function limitar() { const r = zm.getBoundingClientRect(); tx = Math.min(0, Math
 function acercar(x, y) { const r = zm.getBoundingClientRect(); zs = ZOOM; tx = (x - r.left) * (1 - zs); ty = (y - r.top) * (1 - zs); limitar(); pintar(); }
 function reset() { zs = 1; tx = ty = 0; dr = null; zm.classList.remove('drag'); pintar(); }
 zm.addEventListener('pointermove', e => {
-  if (e.pointerType === 'mouse') return acercar(e.clientX, e.clientY);
   if (!dr) return;
   const dx = e.clientX - dr.x, dy = e.clientY - dr.y;
   if (Math.hypot(e.clientX - dr.x0, e.clientY - dr.y0) > 8) dr.mov = true;
   if (zs !== 1 && dr.mov) { tx += dx; ty += dy; limitar(); pintar(); zm.classList.add('drag'); }
   dr.x = e.clientX; dr.y = e.clientY;
 });
-zm.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') reset(); });
-zm.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') dr = { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, mov: false }; });
+zm.addEventListener('pointerdown', e => { if (e.button) return; zm.setPointerCapture?.(e.pointerId); dr = { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, mov: false }; });
 zm.addEventListener('pointerup', e => {
-  if (e.pointerType === 'mouse' || !dr) return;
+  if (!dr) return;
   if (!dr.mov) zs === 1 ? acercar(e.clientX, e.clientY) : reset();   // toque = acercar / alejar
   dr = null; zm.classList.remove('drag');
 });
@@ -75,22 +73,57 @@ const grid = $('#grid');
 grid.innerHTML = P.map(([f, n, c]) => `<button class="card" data-tilt data-c="${c}" data-f="${f}" data-n="${n}"><img src="img/flores/${f}.webp" alt="${n}" width="800" height="1067" loading="lazy"><b>${n}</b></button>`).join('');
 grid.addEventListener('click', e => { const c = e.target.closest('.card'); c && abrir(c.dataset.f, c.dataset.n); });
 
+// ── Filtros: categoría + tipo de flor + color + buscador (se combinan entre sí)
+// Tipo de flor y colores de cada producto: 'Tipo1 Tipo2|color1 color2'. Un producto nuevo sin línea aquí sale igual, solo no aparece al filtrar por flor o color.
+const M = {
+'lampara-rampunzel':'|morado amarillo','maceta-iman1':'Margarita|blanco','bouquet-de-lilys-y-tulipanes':'Lirio Tulipán|rojo blanco','lilys-y-tulipanes':'Lirio Tulipán|amarillo blanco',
+'tulipan_rosa':'Tulipán|rosa','tulipan_amarillo':'Tulipán|amarillo','tulipan_rojo':'Tulipán|rojo','tulipan_fucsia':'Tulipán|rosa','bouquet-de-girasoles':'Girasol|amarillo',
+'rosa':'Rosa|rojo','maceta-iman2':'Tulipán|rojo','maceta_tulipan_rosa':'Tulipán|rosa','ramo_girasoles2':'Girasol Margarita|amarillo blanco','ramo_flores_rojas':'Rosa|rojo blanco',
+'ramo-orquideas':'Orquídea|morado','rosas-girasol':'Tulipán Girasol|rojo amarillo','bouquet-de-lilys':'Lirio|rosa','bouquet-de-lirios':'Lirio|azul','ramo-margarita':'Margarita|blanco',
+'maceta-tulipan':'Tulipán|rosa','maceta-tulipan2':'Tulipán|rosa','maceta-rosa':'Rosa Margarita|rosa blanco','gerbera_amarilla':'Gerbera|amarillo','lirio_amarillo':'Lirio|amarillo',
+'maceta-girasol':'Girasol|amarillo','maceta-margarita-azul':'Margarita|azul','maceta-margarita-roja':'Margarita|rojo blanco','maceta-calendula':'Caléndula|amarillo',
+'ramo-girasol-corzon':'Girasol|amarillo','maceta-tulipan-amarillo':'Tulipán|amarillo','maceta-lilys-rosa':'Lirio|morado rosa','maceta-lilys-rosa-oscuros':'Lirio|rosa',
+'ramo-girasol-rosa':'Girasol Rosa|amarillo rojo','ramo-girasoles':'Girasol|amarillo','ramo-tulipanes':'Tulipán|rojo'};
+const HEX = { rojo: '#D62839', rosa: '#EE5C8C', amarillo: '#F7B928', azul: '#2F6FE0', morado: '#8D6BD8', blanco: '#FFFFFF' };
+const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+const uniq = a => [...new Set(a)];
+const cards = $$('.card');
+cards.forEach(c => { const [t = '', k = ''] = (M[c.dataset.f] || '|').split('|'); c.dataset.t = t; c.dataset.k = k; c.dataset.s = norm(`${c.dataset.n} ${t} ${k}`); });
+const tiene = (c, g, v) => c.dataset[g].split(' ').includes(v);
+const st = { c: 'Todo', t: '', k: '', q: '' };
+
 const chips = $('.chips');
-chips.innerHTML = ['Todo', ...new Set(P.map(p => p[2]))].map((c, i) => `<button class="chip" data-c="${c}" aria-pressed="${!i}">${c}</button>`).join('');
-chips.addEventListener('click', e => {
-  const b = e.target.closest('.chip'); if (!b) return;
-  $$('.chip').forEach(x => x.setAttribute('aria-pressed', x === b));
-  const cards = $$('.card'), antes = new Map(cards.map(c => [c, c.getBoundingClientRect()]));
-  cards.forEach(c => c.hidden = b.dataset.c !== 'Todo' && c.dataset.c !== b.dataset.c);
+const chip = (g, v, i) => `<button class="chip" data-g="${g}" data-v="${v}" aria-pressed="${g === 'c' && !i}">${v}</button>`;
+chips.innerHTML = `<div class="row">${['Todo', ...uniq(P.map(p => p[2]))].map((v, i) => chip('c', v, i)).join('')}
+  <label class="find"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input type="search" placeholder="Buscar flor…" aria-label="Buscar en el catálogo" autocomplete="off"></label></div>
+  <div class="row sc"><span class="lbl">Flor</span>${uniq(cards.flatMap(c => c.dataset.t.split(' ').filter(Boolean))).map(v => chip('t', v)).join('')}</div>
+  <div class="row"><span class="lbl">Color</span>${Object.keys(HEX).filter(k => cards.some(c => tiene(c, 'k', k))).map(k => `<button class="pal" data-g="k" data-v="${k}" style="--c:${HEX[k]}" aria-pressed="false" aria-label="${k}" title="${k}"></button>`).join('')}</div>`;
+const buscar = $('input', chips);
+const vacio = document.createElement('p'); vacio.className = 'vacio'; vacio.hidden = true;
+vacio.innerHTML = 'No encontramos flores con esos filtros. <button type="button" class="chip">Limpiar filtros</button>'; grid.after(vacio);
+const sync = () => $$('[data-g]', chips).forEach(x => x.setAttribute('aria-pressed', st[x.dataset.g] === x.dataset.v));
+
+function filtrar() {
+  const antes = new Map(cards.map(c => [c, c.getBoundingClientRect()])), q = norm(st.q).split(/\s+/).filter(Boolean);
+  cards.forEach(c => c.hidden = !((st.c === 'Todo' || c.dataset.c === st.c) && (!st.t || tiene(c, 't', st.t)) && (!st.k || tiene(c, 'k', st.k)) && q.every(w => c.dataset.s.includes(w))));
+  vacio.hidden = cards.some(c => !c.hidden);
   if (calm) return;
   cards.filter(c => !c.hidden).forEach((c, i) => {
     const a = antes.get(c), z = c.getBoundingClientRect();
     c.animate(a.width
       ? [{ translate: `${a.left - z.left}px ${a.top - z.top}px` }, { translate: '0 0' }]  // se mueve a su nuevo lugar
       : [{ opacity: 0, scale: .85 }, { opacity: 1, scale: 1 }],                            // aparece
-      { duration: 450, delay: a.width ? 0 : i * 25, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' });
+      { duration: 450, delay: a.width ? 0 : Math.min(i, 12) * 25, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' });
   });
+}
+chips.addEventListener('click', e => {
+  const b = e.target.closest('[data-g]'); if (!b) return;
+  const g = b.dataset.g, v = b.dataset.v;
+  st[g] = g === 'c' ? v : (st[g] === v ? '' : v);   // flor y color: segundo clic los quita
+  sync(); filtrar();
 });
+buscar.addEventListener('input', () => { st.q = buscar.value; filtrar(); });
+vacio.addEventListener('click', e => { if (e.target.closest('.chip')) { Object.assign(st, { c: 'Todo', t: '', k: '', q: '' }); buscar.value = ''; sync(); filtrar(); } });
 
 // ── Tilt 3D con brillo (solo con mouse)
 if (hover && !calm) {
@@ -243,5 +276,47 @@ if (!calm) {
     });
     gar.addEventListener('pointerleave', () => tallos.forEach(t => t.style.transform = ''));
   }
+}
+// ── Reseñas: tarjetas que giran. Para agregar una real, suma una línea a REVIEWS (foto opcional en img/resenas/)
+// Formato: { n: 'Nombre', c: 'Ciudad', s: 5, t: 'Texto de la reseña', img: 'img/resenas/foto.webp' }
+const REVIEWS = [];
+// Ejemplos SOLO para ver el diseño: se muestran abriendo la página con ?demo al final del link (nunca en la página normal)
+const DEMO = [
+  { n: 'María (ejemplo)', c: 'Cúcuta', s: 5, t: 'Llegó hermosa y idéntica a la foto. Mi mamá no lo podía creer que fuera de limpiapipas.', img: 'img/flores/bouquet-de-lirios.webp' },
+  { n: 'Andrea (ejemplo)', c: 'Bogotá', s: 5, t: 'Pedí un arreglo personalizado y quedó mejor de lo que imaginé. Súper atenta en todo el proceso.', img: 'img/flores/ramo-girasol-corzon.webp' },
+  { n: 'Camila (ejemplo)', s: 4, t: 'Un detalle perfecto para regalar. Lo mejor es que no se marchita, ¡ya lo tengo en mi escritorio!' }
+];
+{
+  const list = location.search.includes('demo') ? DEMO : REVIEWS, stack = $('.rv-stack'), dots = $('.rv-dots');
+  const items = list.length ? list : [{ n: 'Cattleya', s: 5, t: 'Aquí van a brillar las reseñas de quienes ya tienen su flor para siempre. ¡Sé la primera en dejar la tuya!' }];
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  stack.innerHTML = items.map((r, i) => `<article class="rv-card" style="--a:${COL[i % 5]}">${r.img ? `<img src="${esc(r.img)}" alt="" loading="lazy">` : ''}<div><span class="rv-stars" aria-label="${r.s} de 5 estrellas">${'★'.repeat(r.s)}${'☆'.repeat(5 - r.s)}</span><p>“${esc(r.t)}”</p><b class="rv-who">${esc(r.n)}${r.c ? ` <small>· ${esc(r.c)}</small>` : ''}</b></div></article>`).join('');
+  const cs = $$('.rv-card', stack), N = items.length; let cur = 0, busy = false, hold = false;
+  dots.innerHTML = N > 1 ? items.map((_, i) => `<button aria-label="Reseña ${i + 1}"></button>`).join('') : '';
+  const place = () => { cs.forEach((c, i) => c.style.setProperty('--p', (i - cur + N) % N)); $$('button', dots).forEach((d, i) => d.setAttribute('aria-current', i === cur)); };
+  const next = () => {
+    if (N < 2 || busy) return; busy = true; const top = cs[cur]; top.classList.add('out');
+    setTimeout(() => { top.style.transition = 'none'; top.classList.remove('out'); cur = (cur + 1) % N; place();
+      requestAnimationFrame(() => requestAnimationFrame(() => { top.style.transition = ''; busy = false; })); }, 450);
+  };
+  place();
+  stack.addEventListener('click', next);
+  dots.addEventListener('click', e => { const i = $$('button', dots).indexOf(e.target.closest('button')); if (i >= 0) { cur = i; place(); } });
+  const rv = $('.rv'); ['pointerenter', 'focusin'].forEach(t => rv.addEventListener(t, () => hold = true)); ['pointerleave', 'focusout'].forEach(t => rv.addEventListener(t, () => hold = false));
+  if (!calm && N > 1) setInterval(() => { if (!hold && !document.hidden) next(); }, 5500);
+}
+
+// ── Formulario de reseña: se envía por WhatsApp (sin servidor), así la clienta puede adjuntar su foto en el chat
+{
+  const d = $('#rvdlg'), f = $('form', d), sb = $$('.stars button', d); let rate = 5;
+  const pintar = () => sb.forEach((b, i) => { b.classList.toggle('on', i < rate); b.setAttribute('aria-checked', i + 1 === rate); });
+  $('.stars', d).addEventListener('click', e => { const b = e.target.closest('button'); if (b) { rate = sb.indexOf(b) + 1; pintar(); } });
+  $('.rv-add').addEventListener('click', () => { pintar(); d.showModal(); });
+  d.addEventListener('click', e => { if (e.target === d || e.target.closest('.x')) d.close(); });
+  f.addEventListener('submit', e => {
+    e.preventDefault(); const v = new FormData(f);
+    window.open(wa(`Hola! Quiero dejar mi reseña de Cattleya Flores 🌸\n${'⭐'.repeat(rate)}\nNombre: ${v.get('n').trim()}\nReseña: ${v.get('t').trim()}\n(Te envío una foto de mi flor en este chat 📷)`), '_blank', 'noopener');
+    f.reset(); rate = 5; d.close();
+  });
 }
 })();
