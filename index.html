@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cattleya Flores Artesanales</title>
+<meta name="description" content="Flores artesanales hechas a mano con limpiapipas. Ramos, bouquets y macetas que duran para siempre. Pídelas por WhatsApp.">
+<meta property="og:title" content="Cattleya Flores Artesanales">
+<meta property="og:description" content="Flores hechas a mano con limpiapipas que no se marchitan.">
+<meta property="og:image" content="img/banner.webp">
+<link rel="icon" href="img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&family=Fraunces:opsz,wght,SOFT@9..144,400..700,100&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<canvas id="bg" aria-hidden="true"></canvas>
+<canvas id="pipe" aria-hidden="true"></canvas>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="wa" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></symbol></svg>
+
+<header class="nav">
+  <a href="#inicio" aria-label="Cattleya, inicio"><img class="logo" src="img/logo.webp" alt="Cattleya Flores Artesanales" width="235" height="56"></a>
+  <button class="burger" aria-label="Abrir menú" aria-expanded="false"><i></i><i></i></button>
+  <ul>
+    <li><a href="#destacados">Destacados</a></li>
+    <li><a href="#catalogo">Catálogo</a></li>
+    <li><a href="#sobre">Sobre Mí</a></li>
+    <li><a class="btn wa" href="https://wa.me/584247167293?text=Hola!%20Me%20interesa%20un%20producto%20de%20Cattleya%20Flores%20🌸" target="_blank" rel="noopener"><svg class="ic"><use href="#wa"/></svg>WhatsApp</a></li>
+  </ul>
+</header>
+
+<main>
+  <section class="hero" id="inicio">
+    <img class="banner" src="img/banner.webp" alt="Cattleya Flores Artesanales: ramos de flores hechas a mano" width="1800" height="600" fetchpriority="high">
+    <div class="hero-copy">
+      <h1>Flores hechas a mano que no se marchitan</h1>
+      <p class="lead">Cada pieza está tejida con limpiapipas, una por una, para acompañarte en tus momentos especiales.</p>
+      <div class="btns">
+        <a class="btn fill" href="#catalogo">Ver catálogo</a>
+        <a class="btn" href="https://wa.me/584247167293?text=Hola!%20Me%20interesa%20un%20producto%20de%20Cattleya%20Flores%20🌸" target="_blank" rel="noopener">Pedir por WhatsApp</a>
+      </div>
+      <p class="hint"><span class="fine">Haz clic en cualquier parte para plantar una flor.</span><span class="coarse">Toca la pantalla para plantar una flor.</span></p>
+    </div>
+  </section>
+
+  <div class="mq" data-mq="45s" aria-hidden="true"><div class="mq-track"><span>Hechas a mano con limpiapipas</span><span class="fl">✿</span><span>Flores para siempre</span><span class="fl">✿</span><span>Pedidos por WhatsApp</span><span class="fl">✿</span></div></div>
+
+  <section id="destacados"><div class="wrap">
+    <h2>Lo más destacado</h2>
+    <div class="acc"></div>
+  </div></section>
+
+  <section id="catalogo"><div class="wrap">
+    <h2>Catálogo</h2>
+    <div class="chips" role="group" aria-label="Filtrar por tipo"></div>
+    <div id="grid"></div>
+  </div></section>
+
+  <div id="flores-container">
+    <img class="mob" src="img/banner-flores-vertical.webp" alt="" width="941" height="1672">
+    <img class="dsk" src="img/fondo-flores-mejor.webp" alt="" width="1800" height="564">
+    <div class="card-flores"><img src="img/card-tulipan.webp" alt="Flores para siempre: a diferencia de las flores naturales, nuestras creaciones duran toda la vida sin perder su belleza."></div>
+    <div class="card-flores"><img src="img/card-girasol.webp" alt="100% hecho a mano: cada flor es tejida con amor y dedicación, garantizando un producto único e irrepetible."></div>
+    <div class="card-flores"><img src="img/card-orquidea.webp" alt="Pedidos personalizados: ¿tienes algo especial en mente? Contáctanos y creamos el arreglo perfecto para ti."></div>
+  </div>
+
+  <section id="sobre"><div class="wrap narrow">
+    <h2>Sobre Mí</h2>
+    <p id="story">Soy una emprendedora artesanal apasionada por crear flores únicas hechas a mano con limpiapipas. Cada pieza es tejida con dedicación y amor, pensada para acompañarte en momentos especiales sin marchitarse jamás. Creo que las flores no deberían tener fecha de vencimiento: por eso las hago para siempre.</p>
+  </div></section>
+
+  <section class="pay">
+    <div class="wrap"><h2>Métodos de pago</h2></div>
+    <p class="sr">Nequi, Bancolombia, Mastercard, Banco de Venezuela y Zelle.</p>
+    <div class="mq light" data-mq="60s" aria-hidden="true"><div class="mq-track"><img src="img/nequi.webp" alt="" height="56"><img src="img/bc.webp" alt="" height="56"><img src="img/mastercard.webp" alt="" height="56"><img src="img/bdv.webp" alt="" height="56"><img src="img/zelle.webp" alt="" height="56"></div></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div class="f-brand"><img src="img/logo.webp" alt="Cattleya Flores Artesanales" width="220" height="52"><p>Flores artesanales hechas con amor, diseñadas para durar toda la vida.</p></div>
+    <nav aria-label="Navegación"><h3>Explora</h3><a href="#destacados">Destacados</a><a href="#catalogo">Catálogo</a><a href="#sobre">Sobre Mí</a></nav>
+    <div class="f-contact"><h3>Contacto</h3><p>Escríbenos y cuéntanos qué flor tienes en mente.</p><a class="btn wa" href="https://wa.me/584247167293?text=Hola!%20Me%20interesa%20un%20producto%20de%20Cattleya%20Flores%20🌸" target="_blank" rel="noopener"><svg class="ic"><use href="#wa"/></svg>Escríbenos por WhatsApp</a></div>
+  </div>
+  <div id="garden" aria-hidden="true"></div>
+  <p class="copy">&copy; <span id="y">2026</span> Cattleya Flores Artesanales. Todos los derechos reservados. Diseñado y desarrollado por Cristopher.</p>
+</footer>
+
+<dialog id="dlg" aria-label="Detalle del producto">
+  <div class="dlg">
+    <figure class="zm"><img src="" alt=""><span class="zm-hint" aria-hidden="true"><span class="fine">Pasa el mouse para acercar</span><span class="coarse">Toca para acercar</span></span></figure>
+    <div>
+      <h3></h3>
+      <p>Hecha a mano con limpiapipas. Cuéntanos qué tienes en mente y te ayudamos por WhatsApp.</p>
+      <a class="btn wa" href="#" target="_blank" rel="noopener"><svg class="ic"><use href="#wa"/></svg>Pedir por WhatsApp</a>
+      <button class="btn x" type="button">Cerrar</button>
+    </div>
+  </div>
+</dialog>
+
+<a class="wa-float" href="https://wa.me/584247167293?text=Hola!%20Me%20interesa%20un%20producto%20de%20Cattleya%20Flores%20🌸" target="_blank" rel="noopener noreferrer" aria-label="Escríbenos por WhatsApp"><svg width="28" height="28" fill="#fff"><use href="#wa"/></svg></a>
+
+<script src="main.js"></script>
+</body>
+</html>
