@@ -6,7 +6,7 @@ const wa = t => `https://wa.me/584247167293?text=${encodeURIComponent(t)}`;
 
 // ── Productos: [archivo, nombre, categoría]. Para agregar uno, suma una línea aquí y su .webp en img/flores/
 const P = [
-['lampara-rampunze','Lámpara de Rapunzel','Decoración'],['maceta-iman1','Maceta de Imán','Macetas'],
+['lampara-rampunzel','Lámpara de Rapunzel','Decoración'],['maceta-iman1','Maceta de Imán','Macetas'],
 ['bouquet-de-lilys-y-tulipanes','Bouquet de Lilys y Tulipanes','Ramos'],['lilys-y-tulipanes','Lilys y Tulipanes','Ramos'],
 ['tulipan_rosa','Tulipán Rosa','Ramos'],['tulipan_amarillo','Tulipán Amarillo','Ramos'],
 ['tulipan_rojo','Tulipán Rojo','Ramos'],['tulipan_fucsia','Tulipán Fucsia','Ramos'],
