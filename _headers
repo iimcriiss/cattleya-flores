@@ -2,7 +2,7 @@
 
 # Imágenes (catálogo, banners, logos) – cachear 30 días
 /img/*
-  Cache-Control: public, max-age=2592000
+  Cache-Control: public, max-age=86400, must-revalidate
 
 # CSS y JavaScript – revalidar o caché corta (ej. 1 hora)
 /*.css
