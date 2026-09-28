@@ -1,10 +1,17 @@
 # _headers
 
-# Imágenes (catálogo, banners, logos) — cachear 30 días
+# Imágenes (catálogo, banners, logos) – cachear 30 días
 /img/*
   Cache-Control: public, max-age=2592000
 
-# HTML — que siempre se revise (por si actualizas contenido)
+# CSS y JavaScript – revalidar o caché corta (ej. 1 hora)
+/*.css
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/*.js
+  Cache-Control: public, max-age=3600, must-revalidate
+
+# HTML – que siempre se revise
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
 
