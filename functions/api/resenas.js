@@ -48,7 +48,7 @@ export async function onRequestPost({ request, env }) {
   const ip = request.headers.get('CF-Connecting-IP') || 'x';
   const rk = 'rl:' + ip;
   const usados = parseInt((await env.RESENAS.get(rk)) || '0', 10);
-  if (usados >= 3) return json({ error: 'Ya enviaste varias reseñas. Intenta de nuevo más tarde.' }, 429);
+  if (usados >= 10) return json({ error: 'Ya enviaste varias reseñas. Intenta de nuevo más tarde.' }, 429);
 
   const id = Date.now().toString(36) + '-' + crypto.randomUUID().replace(/-/g, '').slice(0, 12);
 
