@@ -6,21 +6,21 @@ const wa = t => `https://wa.me/584247167293?text=${encodeURIComponent(t)}`;
 
 // ── Productos: [archivo, nombre, categoría]. Para agregar uno, suma una línea aquí y su .webp en img/flores/
 const P = [
-['lampara-rampunzel','Lámpara de Rapunzel','Decoración'],['maceta-iman1','Maceta de Imán','Macetas'],
+['lampara-rampunzel','Lámpara de Rapunzel','Decoración'],['maceta-margarita','Maceta de Margarita','Macetas'],
 ['bouquet-de-lilys-y-tulipanes','Bouquet de Lilys y Tulipanes','Ramos'],['lilys-y-tulipanes','Lilys y Tulipanes','Ramos'],
 ['tulipan_rosa','Tulipán Rosa','Ramos'],['tulipan_amarillo','Tulipán Amarillo','Ramos'],
 ['tulipan_rojo','Tulipán Rojo','Ramos'],['tulipan_fucsia','Tulipán Fucsia','Ramos'],
 ['bouquet-de-girasoles','Bouquet de Girasoles','Ramos'],['rosa','Rosa','Ramos'],
-['maceta-iman2','Maceta de Imán 2','Macetas'],['maceta_tulipan_rosa','Maceta de Tulipán Rosa','Macetas'],['ramo_girasoles2','Ramo de Girasoles con Margaritas','Ramos'],['ramo_flores_rojas','Ramo de Flores Rojas','Ramos'],
+['maceta-tulipanes-rojos','Maceta de Tulipanes Rojos','Macetas'],['maceta_tulipan_rosa','Maceta de Tulipán Rosa','Macetas'],['ramo_girasoles2','Ramo de Girasoles con Margaritas','Ramos'],['ramo_flores_rojas','Ramo de Flores Rojas','Ramos'],
 ['ramo-orquideas','Ramo Orquídeas','Ramos'],['rosas-girasol','Rosas y Girasol','Ramos'],
 ['bouquet-de-lilys','Bouquet de Lilys','Ramos'],['bouquet-de-lirios','Bouquet de Lirios','Ramos'],
-['ramo-margarita','Ramo de Margaritas','Ramos'],['maceta-tulipan','Maceta de Tulipán','Macetas'],
-['maceta-tulipan2','Maceta de Tulipán Rosa','Macetas'],['maceta-rosa','Maceta de Rosa','Macetas'],['gerbera_amarilla','Gerbera Amarilla','Ramos'],['lirio_amarillo','Lirio Amarillo','Ramos'],
-['maceta-girasol','Maceta de Girasol','Macetas'],['maceta-margarita-azul','Maceta de Margarita Azul','Macetas'],
-['maceta-margarita-roja','Maceta de Margarita Roja','Macetas'],['maceta-calendula','Maceta de Caléndula','Macetas'],
+['ramo-margarita','Ramo de Margaritas','Ramos'],['maceta-tulipan-fucsia','Maceta de Tulipán Fucsia','Macetas'],
+['maceta-tulipan-rosaclaro','Maceta de Tulipanes Rosa Claro','Macetas'],['maceta-rosa-rosa-y-margarita','Maceta de Rosa Rosa y Margarita','Macetas'],['gerbera_amarilla','Gerbera Amarilla','Ramos'],['lirio_amarillo','Lirio Amarillo','Ramos'],
+['maceta-girasol','Maceta de Girasol','Macetas'],['maceta-margaritas-azul','Maceta de Margaritas Azul','Macetas'],
+['maceta-margaritas-roja','Maceta de Margaritas Roja','Macetas'],['maceta-calendula','Maceta de Caléndula','Macetas'],
 ['ramo-girasol-corzon','Ramo de Girasol Corazón','Ramos'],['maceta-tulipan-amarillo','Maceta de Tulipán Amarillo','Macetas'],
 ['maceta-lilys-rosa','Maceta de Lilys Rosa','Macetas'],['maceta-lilys-rosa-oscuros','Maceta de Lilys Rosa Oscuro','Macetas'],
-['ramo-girasol-rosa','Ramo de Girasol y Rosas','Ramos'],['ramo-girasoles','Ramo de Girasoles','Ramos'],['ramo-tulipanes','Ramo de Tulipanes','Ramos']];
+['ramo-girasol-rosa','Ramo de Girasol y Rosas','Ramos'],['ramo-girasoles','Ramo de Girasoles','Ramos'],['ramo-tulipanes','Ramo de Tulipanes','Ramos'],['maceta_tulipanes-rojos','Maceta de Tulipanes Rojos','Macetas'],['gerbera-rosa','Gerbera Rosa','Ramos'],['lirio-borde-rojo','Lirio Borde Rojo','Ramos'],['lirio-borde-blanco','Lirio Borde Blanco','Ramos'],['lirio-rojo','Lirio Rojo','Ramos'],['maceta-tulipanes-multicolores','Maceta de Tulipanes Multicolores','Macetas']];
 const F = ['bouquet-de-lirios','bouquet-de-lilys-y-tulipanes','bouquet-de-girasoles'].map(f => P.find(p => p[0] === f));
 
 // ── Diálogo de producto (el mensaje de WhatsApp lleva el nombre)
@@ -290,7 +290,7 @@ const DEMO = [
   const list = location.search.includes('demo') ? DEMO : REVIEWS, stack = $('.rv-stack'), dots = $('.rv-dots');
   const items = list.length ? list : [{ n: 'Cattleya', s: 5, t: 'Aquí van a brillar las reseñas de quienes ya tienen su flor para siempre. ¡Sé la primera en dejar la tuya!' }];
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  stack.innerHTML = items.map((r, i) => `<article class="rv-card" style="--a:${COL[i % 5]}">${r.img ? `<img src="${esc(r.img)}" alt="" loading="lazy">` : ''}<div><span class="rv-stars" aria-label="${r.s} de 5 estrellas">${'★'.repeat(r.s)}${'☆'.repeat(5 - r.s)}</span><p>“${esc(r.t)}”</p><b class="rv-who">${esc(r.n)}${r.c ? ` <small>· ${esc(r.c)}</small>` : ''}</b></div></article>`).join('');
+  stack.innerHTML = items.map((r, i) => `<article class="rv-card" style="--a:${COL[i % 5]}">${r.img ? `<img src="${esc(r.img)}" alt="" loading="lazy">` : ''}<div><span class="rv-stars" aria-label="${r.s} de 5 estrellas">${'★'.repeat(r.s)}${'☆'.repeat(5 - r.s)}</span><p>“${esc(r.t)}”</p><b class="rv-who">${esc(r.n)}${r.c ? ` <small>· ${esc(r.c)}</small>` : ''}</b><button type="button" class="rv-view" data-i="${i}">Ver reseña</button></div></article>`).join('');
   const cs = $$('.rv-card', stack), N = items.length; let cur = 0, busy = false, hold = false;
   dots.innerHTML = N > 1 ? items.map((_, i) => `<button aria-label="Reseña ${i + 1}"></button>`).join('') : '';
   const place = () => { cs.forEach((c, i) => c.style.setProperty('--p', (i - cur + N) % N)); $$('button', dots).forEach((d, i) => d.setAttribute('aria-current', i === cur)); };
@@ -300,10 +300,25 @@ const DEMO = [
       requestAnimationFrame(() => requestAnimationFrame(() => { top.style.transition = ''; busy = false; })); }, 450);
   };
   place();
-  stack.addEventListener('click', next);
   dots.addEventListener('click', e => { const i = $$('button', dots).indexOf(e.target.closest('button')); if (i >= 0) { cur = i; place(); } });
   const rv = $('.rv'); ['pointerenter', 'focusin'].forEach(t => rv.addEventListener(t, () => hold = true)); ['pointerleave', 'focusout'].forEach(t => rv.addEventListener(t, () => hold = false));
   if (!calm && N > 1) setInterval(() => { if (!hold && !document.hidden) next(); }, 5500);
+
+  // ── El botón "Ver reseña" abre esa tarjeta en grande; el resto de la tarjeta sigue pasando a la siguiente
+  const rvv = $('#rvview'), rvvFig = $('figure', rvv), rvvImg = $('img', rvv), rvvStars = $('.rv-stars', rvv), rvvText = $('.rvv-text', rvv), rvvWho = $('.rv-who', rvv);
+  stack.addEventListener('click', e => {
+    const btn = e.target.closest('.rv-view');
+    if (btn) {
+      const r = items[+btn.dataset.i];
+      rvvFig.hidden = !r.img; if (r.img) rvvImg.src = r.img;
+      rvvStars.textContent = '★'.repeat(r.s) + '☆'.repeat(5 - r.s); rvvStars.setAttribute('aria-label', `${r.s} de 5 estrellas`);
+      rvvText.textContent = `“${r.t}”`; rvvWho.textContent = r.c ? `${r.n} · ${r.c}` : r.n;
+      rvv.showModal();
+      return;
+    }
+    if (e.target.closest('.rv-card')) next();
+  });
+  rvv.addEventListener('click', e => { if (e.target === rvv || e.target.closest('.x')) rvv.close(); });
 }
 
 // ── Formulario de reseña: se envía por WhatsApp (sin servidor), así la clienta puede adjuntar su foto en el chat
@@ -314,8 +329,8 @@ const DEMO = [
   $('.rv-add').addEventListener('click', () => { pintar(); d.showModal(); });
   d.addEventListener('click', e => { if (e.target === d || e.target.closest('.x')) d.close(); });
   f.addEventListener('submit', e => {
-    e.preventDefault(); const v = new FormData(f);
-    window.open(wa(`Hola! Quiero dejar mi reseña de Cattleya Flores 🌸\n${'⭐'.repeat(rate)}\nNombre: ${v.get('n').trim()}\nReseña: ${v.get('t').trim()}\n(Te envío una foto de mi flor en este chat 📷)`), '_blank', 'noopener');
+    e.preventDefault(); const v = new FormData(f), ciudad = v.get('c').trim();
+    window.open(wa(`Hola! Quiero dejar mi reseña de Cattleya Flores 🌸\n${'⭐'.repeat(rate)}\nNombre: ${v.get('n').trim()}${ciudad ? `\nCiudad: ${ciudad}` : ''}\nReseña: ${v.get('t').trim()}\n(Te envío una foto de mi flor en este chat 📷)`), '_blank', 'noopener');
     f.reset(); rate = 5; d.close();
   });
 }

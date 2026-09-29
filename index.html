@@ -11,7 +11,7 @@
 <link rel="icon" href="img/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&family=Fraunces:opsz,wght,SOFT@9..144,400..700,100&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&family=Fraunces:opsz,wght,SOFT@9..144,400..700,100&family=Lora:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -28,6 +28,7 @@
     <li><a href="#destacados">Destacados</a></li>
     <li><a href="#catalogo">Catálogo</a></li>
     <li><a href="#sobre">Sobre Mí</a></li>
+    <li><a href="#faq">Preguntas frecuentes</a></li>
     <li><a class="btn wa" href="https://wa.me/584247167293?text=Hola!%20Me%20interesa%20un%20producto%20de%20Cattleya%20Flores%20🌸" target="_blank" rel="noopener"><svg class="ic"><use href="#wa"/></svg>WhatsApp</a></li>
     <li><a class="btn ig" href="https://www.instagram.com/cattleya._flowers/" target="_blank" rel="noopener"><svg class="ic"><use href="#ig"/></svg>Instagram</a></li>
   </ul>
@@ -39,7 +40,7 @@
     <div class="hero-copy">
     <div class="hero-text">
       <h1>Flores hechas a mano que no se marchitan</h1>
-      <p class="lead">Cada pieza está tejida con limpiapipas, una por una, para acompañarte en tus momentos especiales.</p>
+      <p class="lead">Tejidas a mano, puntada a puntada, pensando en quien las va a recibir. Un detalle que no se marchita ni se olvida.</p>
       <div class="btns">
         <a class="btn fill" href="#catalogo">Ver catálogo</a>
         <a class="btn" href="https://wa.me/584247167293?text=Hola!%20Me%20interesa%20un%20producto%20de%20Cattleya%20Flores%20🌸" target="_blank" rel="noopener">Pedir por WhatsApp</a>
@@ -54,7 +55,7 @@
     </div>
   </section>
 
-  <div class="mq" data-mq="50s" aria-hidden="true"><div class="mq-track"><span>Hechas a mano con limpiapipas</span><span class="fl">✿</span><span>Flores para siempre</span><span class="fl">✿</span><span>Envíos nacionales e internacionales</span><span class="fl">✿</span><span>Pedidos por WhatsApp</span><span class="fl">✿</span></div></div>
+  <div class="mq" data-mq="130s" aria-hidden="true"><div class="mq-track"><span>Hechas a mano con limpiapipas</span><span class="fl">•</span><span>Flores para siempre</span><span class="fl">•</span><span>Envíos nacionales e internacionales</span><span class="fl">•</span><span>Pedidos por WhatsApp</span><span class="fl">•</span></div></div>
 
   <section id="destacados"><div class="wrap">
     <h2>Lo más destacado</h2>
@@ -101,7 +102,7 @@
 <footer>
   <div class="wrap foot">
     <div class="f-brand"><img src="img/logo.webp" alt="Cattleya Flores Artesanales" width="220" height="52"><p>Flores artesanales hechas con amor, diseñadas para durar toda la vida.</p></div>
-    <nav aria-label="Navegación"><h3>Explora</h3><a href="#destacados">Destacados</a><a href="#catalogo">Catálogo</a><a href="#sobre">Sobre Mí</a></nav>
+    <nav aria-label="Navegación"><h3>Explora</h3><a href="#destacados">Destacados</a><a href="#catalogo">Catálogo</a><a href="#sobre">Sobre Mí</a><a href="#faq">Preguntas frecuentes</a></nav>
     <div class="f-contact"><h3>Contacto</h3><p>Escríbenos y cuéntanos qué flor tienes en mente.</p><a class="btn wa" href="https://wa.me/584247167293?text=Hola!%20Me%20interesa%20un%20producto%20de%20Cattleya%20Flores%20🌸" target="_blank" rel="noopener"><svg class="ic"><use href="#wa"/></svg>Escríbenos por WhatsApp</a></div>
   </div>
   <div id="garden" aria-hidden="true"></div>
@@ -128,9 +129,22 @@
     <p>Cuéntanos cómo te fue con tu flor. Se envía por WhatsApp, así puedes adjuntar una foto en el mismo chat.</p>
     <div class="stars" role="radiogroup" aria-label="Calificación"><button type="button" role="radio" aria-label="1 estrella">★</button><button type="button" role="radio" aria-label="2 estrellas">★</button><button type="button" role="radio" aria-label="3 estrellas">★</button><button type="button" role="radio" aria-label="4 estrellas">★</button><button type="button" role="radio" aria-label="5 estrellas">★</button></div>
     <input name="n" placeholder="Tu nombre" required maxlength="40" autocomplete="given-name">
+    <input name="c" placeholder="Tu ciudad (opcional)" maxlength="40" autocomplete="address-level2">
     <textarea name="t" placeholder="Tu reseña" required maxlength="400" rows="4"></textarea>
     <div class="acts"><button class="btn wa" type="submit"><svg class="ic"><use href="#wa"/></svg>Enviar por WhatsApp</button><button class="btn x" type="button">Cancelar</button></div>
   </form>
+</dialog>
+
+<dialog id="rvview" aria-label="Reseña completa">
+  <div class="dlg">
+    <figure class="rvv-fig"><img src="" alt=""></figure>
+    <div>
+      <span class="rv-stars"></span>
+      <p class="rvv-text"></p>
+      <b class="rv-who"></b>
+      <button class="btn x" type="button">Cerrar</button>
+    </div>
+  </div>
 </dialog>
 
 <script src="main.js"></script>

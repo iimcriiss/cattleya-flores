@@ -52,7 +52,7 @@ h2{font:500 clamp(2rem,5vw,3.4rem)/1.05 var(--serif);font-variation-settings:"SO
 
 /* ── Hero (lienzo de limpiapipas) ───────────────── */
 .hero{position:relative;padding:var(--nav) 0 0;overflow:hidden}
-.banner{display:block;width:100%;height:auto;-webkit-mask-image:linear-gradient(#000 38%,transparent 92%);mask-image:linear-gradient(#000 38%,transparent 92%)}
+.banner{display:block;width:100%;height:auto;-webkit-mask-image:linear-gradient(#000 60%,transparent 95%);mask-image:linear-gradient(#000 60%,transparent 95%)}
 .hero-copy{position:relative;display:grid;grid-template-columns:minmax(0,520px) minmax(0,1fr);gap:clamp(24px,5vw,72px);align-items:center;
   padding:clamp(28px,5vw,64px) clamp(16px,4vw,40px) clamp(48px,7vw,90px)}
 .hero h1{font:500 clamp(2.4rem,7vw,5.2rem)/1 var(--serif);font-variation-settings:"SOFT" 100;letter-spacing:-.025em;max-width:13ch;margin:0 0 20px}
@@ -63,12 +63,11 @@ h2{font:500 clamp(2rem,5vw,3.4rem)/1.05 var(--serif);font-variation-settings:"SO
 @media(pointer:coarse){.fine{display:none}.coarse{display:inline}}
 
 /* ── Marquesinas ────────────────────────────────── */
-.mq{overflow:hidden;background:var(--ink);color:var(--bg)}
+.mq{overflow:hidden;background:var(--pink);color:var(--bg)}
 .mq.light{background:#fff;border-block:1px solid var(--line)}
 .mq-track{display:flex;align-items:center;width:max-content;animation:mq var(--d,45s) linear infinite}
-.mq-track span{padding:14px 22px;font:500 1.15rem var(--serif);white-space:nowrap}
-.mq-track .fl{padding:14px 0;color:#F7B928}
-.mq-track .fl:nth-child(4n+2){color:var(--pink)}
+.mq-track span{padding:14px 22px;font:600 1.05rem/1 Figtree,sans-serif;letter-spacing:.02em;white-space:nowrap}
+.mq-track .fl{padding:14px 0;opacity:.55;font-size:.6em}
 .mq-track img{height:56px;width:auto;margin:14px 24px}
 @keyframes mq{to{transform:translateX(-50%)}}
 
@@ -101,7 +100,7 @@ h2{font:500 clamp(2rem,5vw,3.4rem)/1.05 var(--serif);font-variation-settings:"SO
   box-shadow:0 1px 0 var(--line),0 10px 24px -14px rgba(90,40,25,.35)}
 .card:hover{box-shadow:0 1px 0 var(--line),0 22px 34px -16px rgba(90,40,25,.45)}
 .card img{display:block;flex:none;width:100%;height:auto;aspect-ratio:3/4;object-fit:cover}
-.card b{display:block;padding:12px 14px 14px;font:500 1rem/1.25 var(--serif);color:var(--ink)}
+.card b{display:block;padding:12px 14px 14px;font:500 1rem/1.25 'DM Serif Text',Georgia,serif;color:var(--ink)}
 .card::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s;
   background:radial-gradient(circle at var(--gx,50%) var(--gy,50%),rgba(255,255,255,.35),transparent 55%)}
 .card:hover::after{opacity:1}
@@ -120,7 +119,8 @@ h2{font:500 clamp(2rem,5vw,3.4rem)/1.05 var(--serif);font-variation-settings:"SO
 
 /* ── Sobre nosotros ─────────────────────────────── */
 #sobre .narrow{padding:clamp(28px,6vw,64px);border-radius:32px;background:rgba(255,255,255,.62);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.85);box-shadow:0 24px 50px -30px rgba(90,40,25,.35)}
-#story{margin:0;font:500 clamp(1.5rem,3.6vw,2.6rem)/1.3 var(--serif);font-variation-settings:"SOFT" 100;letter-spacing:-.01em}
+#sobre h2{font-family:'Playfair Display',Georgia,serif;font-variation-settings:normal}
+#story{margin:0;font:italic 500 clamp(1.5rem,3.6vw,2.6rem)/1.3 'Playfair Display',Georgia,serif;font-variation-settings:normal;letter-spacing:-.01em}
 #story span{color:#B79C92;transition:color .25s}
 #story span.lit{color:var(--ink)}
 
@@ -223,24 +223,26 @@ dialog[open]{animation:pop .35s cubic-bezier(.2,.9,.3,1.2)}
 .rv{width:100%;max-width:480px;justify-self:center}
 .rv-title{margin:0 0 14px;font:500 1.15rem var(--serif);font-variation-settings:"SOFT" 100}
 .rv-stack{position:relative;height:300px}
-.rv-card{position:absolute;inset:0 26px 30px 0;display:flex;gap:16px;align-items:flex-start;padding:24px;border-radius:24px;background:#fff;border:1px solid var(--line);border-top:5px solid var(--a);
+.rv-card{position:absolute;inset:0 26px 30px 0;display:flex;gap:16px;align-items:flex-start;padding:24px;border-radius:24px;background:#fff;border:1px solid var(--line);border-top:5px solid var(--a);cursor:pointer;
   box-shadow:0 18px 40px -22px rgba(90,40,25,.45);cursor:pointer;transform-origin:0 100%;
   transform:translate(calc(var(--p,0) * 13px),calc(var(--p,0) * 10px)) rotate(calc(var(--p,0) * 1.8deg)) scale(calc(1 - var(--p,0) * .045));
   opacity:clamp(0,calc(3 - var(--p,0)),1);z-index:calc(10 - var(--p,0));transition:transform .7s cubic-bezier(.2,.8,.2,1),opacity .5s}
 .rv-card.out{transform:translate(115%,-14px) rotate(14deg);opacity:0;z-index:20;transition-duration:.45s}
-.rv-card img{flex:none;width:84px;height:112px;object-fit:cover;border-radius:14px}
+.rv-card img{flex:none;width:96px;height:128px;object-fit:cover;border-radius:14px;cursor:pointer}
 .rv-card>div{min-width:0;height:100%;display:flex;flex-direction:column;gap:8px}
 .rv-stars{color:#F7B928;font-size:1.15rem;letter-spacing:2px}
-.rv-card p{margin:0;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;font:500 1.05rem/1.45 var(--serif);color:var(--ink)}
+.rv-card p{margin:0;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;font:500 1.05rem/1.45 var(--serif);color:var(--ink)}
 .rv-who{font-size:.9rem}.rv-who small{font-weight:400;color:var(--mut);font-size:.85rem}
-.rv-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;padding-right:26px}
+.rv-view{align-self:flex-start;margin-top:4px;padding:6px 15px;border-radius:999px;border:1.5px solid var(--pink);background:transparent;color:var(--pink);font:700 .78rem Figtree,sans-serif;cursor:pointer;transition:background .2s,color .2s}
+.rv-view:hover{background:var(--pink);color:#fff}
+.rv-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:30px;padding-right:26px}
 .rv-dots{display:flex;gap:8px}
 .rv-dots button{width:10px;height:10px;padding:0;border:0;border-radius:99px;background:#D9BFB5;cursor:pointer;transition:width .3s,background .3s}
 .rv-dots button[aria-current=true]{width:26px;background:var(--pink)}
 .rv-add{padding:8px 16px;margin-left:auto}
 @media(max-width:960px){.hero-copy{grid-template-columns:1fr}.rv{justify-self:start}}
 @media(min-width:1400px){.hero-copy{max-width:1500px;margin-inline:auto}.rv{max-width:620px}.rv-stack{height:330px}.rv-card{padding:30px}}
-@media(max-width:480px){.rv-stack{height:330px}.rv-card img{width:68px;height:92px}}
+@media(max-width:480px){.rv-stack{height:330px}.rv-card img{width:78px;height:104px}}
 
 /* ── Formulario de reseña ── */
 #rvdlg{width:min(480px,94vw)}
@@ -262,3 +264,12 @@ dialog[open]{animation:pop .35s cubic-bezier(.2,.9,.3,1.2)}
 .faq summary::after{content:"+";position:absolute;right:0;top:50%;transform:translateY(-50%);font:400 1.4rem/1 Figtree,sans-serif;color:var(--pink);transition:transform .3s}
 .faq[open] summary::after{transform:translateY(-50%) rotate(45deg)}
 .faq p{margin:0 0 20px;color:var(--mut)}
+
+/* ── Reseña ampliada (al hacer clic en una tarjeta) ── */
+#rvview .dlg:has(.rvv-fig[hidden]){grid-template-columns:1fr}
+.rvv-fig{margin:0;line-height:0;aspect-ratio:3/4;max-height:92vh;background:#fff}
+.rvv-fig img{width:100%;height:100%;object-fit:cover;display:block}
+.rvv-text{font:500 1.35rem/1.5 var(--serif);font-variation-settings:"SOFT" 100;color:var(--ink)}
+#rvview .rv-stars{font-size:1.3rem}
+#rvview .rv-who{font-size:1rem}
+@media(max-width:700px){.rvv-fig{aspect-ratio:auto;max-height:min(50vh,100vw);object-fit:cover}}
