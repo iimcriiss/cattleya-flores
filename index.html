@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cattleya Flowers</title>
+<title>Cattleya Flores Artesanales</title>
 <meta name="description" content="Flores artesanales hechas a mano con limpiapipas. Ramos, bouquets y macetas que duran para siempre. Pídelas por WhatsApp.">
-<meta property="og:title" content="Cattleya Flowers">
+<meta property="og:title" content="Cattleya Flores Artesanales">
 <meta property="og:description" content="Flores hechas a mano con limpiapipas que no se marchitan.">
 <meta property="og:image" content="img/banner.webp">
 <link rel="icon" href="img/favicon.png">
@@ -130,12 +130,15 @@
 <dialog id="rvdlg" aria-label="Deja tu reseña">
   <form class="rvf">
     <h3>Deja tu reseña</h3>
-    <p>Cuéntanos cómo te fue con tu flor. Se envía por WhatsApp, así puedes adjuntar una foto en el mismo chat.</p>
+    <p>Cuéntanos cómo te fue con tu flor. Puedes adjuntar una foto. Tu reseña se publica después de que Cattleya la revise.</p>
     <div class="stars" role="radiogroup" aria-label="Calificación"><button type="button" role="radio" aria-label="1 estrella">★</button><button type="button" role="radio" aria-label="2 estrellas">★</button><button type="button" role="radio" aria-label="3 estrellas">★</button><button type="button" role="radio" aria-label="4 estrellas">★</button><button type="button" role="radio" aria-label="5 estrellas">★</button></div>
     <input name="n" placeholder="Tu nombre" required maxlength="40" autocomplete="given-name">
     <input name="c" placeholder="Tu ciudad (opcional)" maxlength="40" autocomplete="address-level2">
     <textarea name="t" placeholder="Tu reseña" required maxlength="400" rows="4"></textarea>
-    <div class="acts"><button class="btn wa" type="submit"><svg class="ic"><use href="#wa"/></svg>Enviar por WhatsApp</button><button class="btn x" type="button">Cancelar</button></div>
+    <label class="rvfoto">Tu foto (opcional)<input type="file" name="foto" accept="image/*"></label>
+    <input name="web" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+    <p class="rvmsg" role="status"></p>
+    <div class="acts"><button class="btn" type="submit">Enviar reseña</button><button class="btn x" type="button">Cancelar</button></div>
   </form>
 </dialog>
 

@@ -40,6 +40,7 @@ h2{font:500 clamp(2rem,5vw,3.4rem)/1.05 var(--serif);font-variation-settings:"SO
 .open .burger i:first-child{transform:translateY(4px) rotate(45deg)}
 .open .burger i:last-child{transform:translateY(-4px) rotate(-45deg)}
 @media(max-width:1000px){.nav ul{--navgap:14px;margin-left:20px}}
+@media(min-width:1001px) and (max-width:1279px){.nav ul{--navgap:12px;margin-left:14px}.nav ul a:not(.btn){font-size:.92rem;white-space:nowrap}.nav .btn{padding:8px 14px}}
 @media(min-width:761px) and (max-width:1000px){.nav ul{--navgap:8px;margin-left:10px}.nav ul a:not(.btn){font-size:.88rem}.nav .btn{padding:8px 12px}}
 @media(min-width:761px){.nav ul li:has(>.btn.wa){margin-inline-end:calc(-1 * (var(--navgap,28px) - 10px))}}
 @media(max-width:760px){
@@ -273,3 +274,7 @@ dialog[open]{animation:pop .35s cubic-bezier(.2,.9,.3,1.2)}
 .fz-bg{position:sticky;top:0;height:100vh;overflow:hidden}
 .fz-bg::before{content:"";position:absolute;inset:-6%;background:url(img/fondo-resenas.webp) center/cover no-repeat;opacity:.27;animation:fz-drift 26s ease-in-out infinite alternate}
 @keyframes fz-drift{from{transform:scale(1) translate(0,0)}to{transform:scale(1.08) translate(-1.5%,1.5%)}}
+
+/* Formulario de reseña: foto y mensaje */
+.rvfoto{display:grid;gap:6px;color:var(--mut);font-size:.9rem}
+.rvmsg{min-height:1.3em;font-size:.9rem}

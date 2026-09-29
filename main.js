@@ -1,4 +1,4 @@
-(() => {
+(async () => {
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const calm = matchMedia('(prefers-reduced-motion:reduce)').matches;
 const hover = matchMedia('(hover:hover)').matches;
@@ -282,7 +282,10 @@ if (!calm) {
 }
 // ── Reseñas: tarjetas que giran. Para agregar una real, suma una línea a REVIEWS (foto opcional en img/resenas/)
 // Formato: { n: 'Nombre', c: 'Ciudad', s: 5, t: 'Texto de la reseña', img: 'img/resenas/foto.webp' }
-const REVIEWS = [];
+let REVIEWS = [];
+if (!location.search.includes('demo')) {
+  try { const r = await fetch('/api/resenas', { signal: AbortSignal.timeout(3000) }); if (r.ok) REVIEWS = await r.json(); } catch {}
+}
 // Ejemplos SOLO para ver el diseño: se muestran abriendo la página con ?demo al final del link (nunca en la página normal)
 const DEMO = [
   { n: 'María (ejemplo)', c: 'Cúcuta', s: 5, t: 'Llegó hermosa y idéntica a la foto. Mi mamá no lo podía creer que fuera de limpiapipas.', img: 'img/flores/bouquet-de-lirios.webp' },
@@ -324,17 +327,40 @@ const DEMO = [
   rvv.addEventListener('click', e => { if (e.target === rvv || e.target.closest('.x')) rvv.close(); });
 }
 
-// ── Formulario de reseña: se envía por WhatsApp (sin servidor), así la clienta puede adjuntar su foto en el chat
+// ── Formulario de reseña: se guarda en Cloudflare (R2 + KV) y se publica cuando Cattleya la aprueba
 {
   const d = $('#rvdlg'), f = $('form', d), sb = $$('.stars button', d); let rate = 5;
   const pintar = () => sb.forEach((b, i) => { b.classList.toggle('on', i < rate); b.setAttribute('aria-checked', i + 1 === rate); });
   $('.stars', d).addEventListener('click', e => { const b = e.target.closest('button'); if (b) { rate = sb.indexOf(b) + 1; pintar(); } });
   $('.rv-add').addEventListener('click', () => { pintar(); d.showModal(); });
   d.addEventListener('click', e => { if (e.target === d || e.target.closest('.x')) d.close(); });
-  f.addEventListener('submit', e => {
-    e.preventDefault(); const v = new FormData(f), ciudad = v.get('c').trim();
-    window.open(wa(`Hola! Quiero dejar mi reseña de Cattleya Flores 🌸\n${'⭐'.repeat(rate)}\nNombre: ${v.get('n').trim()}${ciudad ? `\nCiudad: ${ciudad}` : ''}\nReseña: ${v.get('t').trim()}\n(Te envío una foto de mi flor en este chat 📷)`), '_blank', 'noopener');
-    f.reset(); rate = 5; d.close();
+  const reducir = file => new Promise(res => {
+    if (!file || !file.size) return res(null);
+    const url = URL.createObjectURL(file), im = new Image();
+    im.onload = () => {
+      const k = Math.min(1, 1280 / Math.max(im.width, im.height)), cv = document.createElement('canvas');
+      cv.width = Math.round(im.width * k); cv.height = Math.round(im.height * k);
+      cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height);
+      URL.revokeObjectURL(url); cv.toBlob(b => res(b), 'image/jpeg', .82);
+    };
+    im.onerror = () => { URL.revokeObjectURL(url); res(null); };
+    im.src = url;
+  });
+  f.addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = $('button[type=submit]', f), msg = $('.rvmsg', f), fd = new FormData(f);
+    fd.set('s', rate); fd.delete('foto');
+    btn.disabled = true; msg.textContent = 'Enviando…';
+    try {
+      const foto = await reducir(f.elements.foto.files[0]);
+      if (foto) fd.set('foto', foto, 'foto.jpg');
+      const r = await fetch('/api/resenas', { method: 'POST', body: fd }), j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.error || 'No se pudo enviar. Intenta de nuevo.');
+      msg.textContent = '¡Gracias! Tu reseña se publicará cuando Cattleya la revise 🌸';
+      f.reset(); rate = 5; pintar();
+      setTimeout(() => { d.close(); msg.textContent = ''; }, 2600);
+    } catch (err) { msg.textContent = err.message || 'No se pudo enviar. Intenta de nuevo.'; }
+    btn.disabled = false;
   });
 }
 })();
