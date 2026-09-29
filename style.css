@@ -40,6 +40,7 @@ h2{font:500 clamp(2rem,5vw,3.4rem)/1.05 var(--serif);font-variation-settings:"SO
 .open .burger i:first-child{transform:translateY(4px) rotate(45deg)}
 .open .burger i:last-child{transform:translateY(-4px) rotate(-45deg)}
 @media(max-width:1000px){.nav ul{--navgap:14px;margin-left:20px}}
+@media(min-width:761px) and (max-width:1000px){.nav ul{--navgap:8px;margin-left:10px}.nav ul a:not(.btn){font-size:.88rem}.nav .btn{padding:8px 12px}}
 @media(min-width:761px){.nav ul li:has(>.btn.wa){margin-inline-end:calc(-1 * (var(--navgap,28px) - 10px))}}
 @media(max-width:760px){
   .burger{display:block}
@@ -51,7 +52,7 @@ h2{font:500 clamp(2rem,5vw,3.4rem)/1.05 var(--serif);font-variation-settings:"SO
 }
 
 /* ── Hero (lienzo de limpiapipas) ───────────────── */
-.hero{position:relative;padding:var(--nav) 0 0;overflow:hidden}
+.hero{position:relative;padding:var(--nav) 0 0;overflow:hidden;scroll-margin-top:0}
 .banner{display:block;width:100%;height:auto;-webkit-mask-image:linear-gradient(#000 60%,transparent 95%);mask-image:linear-gradient(#000 60%,transparent 95%)}
 .hero-copy{position:relative;display:grid;grid-template-columns:minmax(0,520px) minmax(0,1fr);gap:clamp(24px,5vw,72px);align-items:center;
   padding:clamp(28px,5vw,64px) clamp(16px,4vw,40px) clamp(48px,7vw,90px)}
@@ -66,7 +67,8 @@ h2{font:500 clamp(2rem,5vw,3.4rem)/1.05 var(--serif);font-variation-settings:"SO
 .mq{overflow:hidden;background:var(--pink);color:var(--bg)}
 .mq.light{background:#fff;border-block:1px solid var(--line)}
 .mq-track{display:flex;align-items:center;width:max-content;animation:mq var(--d,45s) linear infinite}
-.mq-track span{padding:14px 22px;font:600 1.05rem/1 Figtree,sans-serif;letter-spacing:.02em;white-space:nowrap}
+.mq-track span{display:inline-flex;align-items:center;gap:8px;padding:14px 5px;font:600 1.05rem/1 Figtree,sans-serif;letter-spacing:.02em;white-space:nowrap}
+.mq-ic{flex:none;width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .mq-track .fl{padding:14px 0;opacity:.55;font-size:.6em}
 .mq-track img{height:56px;width:auto;margin:14px 24px}
 @keyframes mq{to{transform:translateX(-50%)}}
@@ -100,10 +102,7 @@ h2{font:500 clamp(2rem,5vw,3.4rem)/1.05 var(--serif);font-variation-settings:"SO
   box-shadow:0 1px 0 var(--line),0 10px 24px -14px rgba(90,40,25,.35)}
 .card:hover{box-shadow:0 1px 0 var(--line),0 22px 34px -16px rgba(90,40,25,.45)}
 .card img{display:block;flex:none;width:100%;height:auto;aspect-ratio:3/4;object-fit:cover}
-.card b{display:block;padding:12px 14px 14px;font:550 1rem/1.25 'DM Serif Text',Georgia,serif;color:var(--ink)}
-.card::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s;
-  background:radial-gradient(circle at var(--gx,50%) var(--gy,50%),rgba(255,255,255,.35),transparent 55%)}
-.card:hover::after{opacity:1}
+.card b{display:block;position:relative;margin-top:-70px;padding:70px 10px 14px;background:linear-gradient(rgba(255,255,255,0),rgba(255,255,255,.6) 30%,#fff 55%);font:600 1rem/1.25 'DM Serif Text',Georgia,serif;color:var(--ink)}
 
 /* ── Banner de flores (tarjetas posicionadas por JS) ── */
 #flores-container{position:relative;max-width:1024px;margin:20px auto 0;border-radius:16px;overflow:hidden}
@@ -175,13 +174,6 @@ dialog[open]{animation:pop .35s cubic-bezier(.2,.9,.3,1.2)}
 .dlg h3{margin:0;font:500 clamp(1.6rem,3vw,2.2rem)/1.1 var(--serif);font-variation-settings:"SOFT" 100}
 .dlg p{margin:0;color:var(--mut)}
 @media(max-width:700px){.dlg{grid-template-columns:1fr;overflow-y:auto;max-height:92vh}.zm{aspect-ratio:auto;max-height:none}.dlg .zm img{position:static;inset:auto;height:auto;max-height:min(58vh,117.5vw);object-fit:cover;object-position:center bottom}.dlg div{padding:24px}}
-
-/* ── WhatsApp flotante ──────────────────────────── */
-.wa-float{position:fixed;right:20px;bottom:20px;z-index:60;width:56px;height:56px;border-radius:50%;background:var(--wa);
-  display:grid;place-items:center;box-shadow:0 4px 16px rgba(37,211,102,.45);transition:transform .2s}
-.wa-float:hover{transform:scale(1.1)}
-.wa-float::before{content:"";position:absolute;inset:0;border-radius:50%;background:rgba(37,211,102,.4);animation:ping 2.2s ease-out infinite}
-@keyframes ping{0%{transform:scale(1);opacity:.7}70%,100%{transform:scale(1.55);opacity:0}}
 
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
@@ -273,3 +265,11 @@ dialog[open]{animation:pop .35s cubic-bezier(.2,.9,.3,1.2)}
 #rvview .rv-stars{font-size:1.3rem}
 #rvview .rv-who{font-size:1rem}
 @media(max-width:700px){.rvv-fig{aspect-ratio:auto;max-height:min(50vh,100vw);object-fit:cover}}
+
+/* ── Fondo de flores: desde el final del catálogo hasta el footer ── */
+.fz{position:relative;isolation:isolate}
+.fz-clip{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:clip;
+  -webkit-mask-image:linear-gradient(transparent,#000 16%,#000 84%,transparent);mask-image:linear-gradient(transparent,#000 16%,#000 84%,transparent)}
+.fz-bg{position:sticky;top:0;height:100vh;overflow:hidden}
+.fz-bg::before{content:"";position:absolute;inset:-6%;background:url(img/fondo-resenas.webp) center/cover no-repeat;opacity:.27;animation:fz-drift 26s ease-in-out infinite alternate}
+@keyframes fz-drift{from{transform:scale(1) translate(0,0)}to{transform:scale(1.08) translate(-1.5%,1.5%)}}

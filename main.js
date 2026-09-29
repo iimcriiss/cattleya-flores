@@ -76,14 +76,18 @@ grid.addEventListener('click', e => { const c = e.target.closest('.card'); c && 
 // ── Filtros: categoría + tipo de flor + color + buscador (se combinan entre sí)
 // Tipo de flor y colores de cada producto: 'Tipo1 Tipo2|color1 color2'. Un producto nuevo sin línea aquí sale igual, solo no aparece al filtrar por flor o color.
 const M = {
-'lampara-rampunzel':'|morado amarillo','maceta-iman1':'Margarita|blanco','bouquet-de-lilys-y-tulipanes':'Lirio Tulipán|rojo blanco','lilys-y-tulipanes':'Lirio Tulipán|amarillo blanco',
+'lampara-rampunzel':'|morado amarillo','bouquet-de-lilys-y-tulipanes':'Lirio Tulipán|rojo blanco','lilys-y-tulipanes':'Lirio Tulipán|amarillo blanco',
 'tulipan_rosa':'Tulipán|rosa','tulipan_amarillo':'Tulipán|amarillo','tulipan_rojo':'Tulipán|rojo','tulipan_fucsia':'Tulipán|rosa','bouquet-de-girasoles':'Girasol|amarillo',
-'rosa':'Rosa|rojo','maceta-iman2':'Tulipán|rojo','maceta_tulipan_rosa':'Tulipán|rosa','ramo_girasoles2':'Girasol Margarita|amarillo blanco','ramo_flores_rojas':'Rosa|rojo blanco',
+'rosa':'Rosa|rojo','maceta_tulipan_rosa':'Tulipán|rosa','ramo_girasoles2':'Girasol Margarita|amarillo blanco','ramo_flores_rojas':'Rosa|rojo blanco',
 'ramo-orquideas':'Orquídea|morado','rosas-girasol':'Tulipán Girasol|rojo amarillo','bouquet-de-lilys':'Lirio|rosa','bouquet-de-lirios':'Lirio|azul','ramo-margarita':'Margarita|blanco',
-'maceta-tulipan':'Tulipán|rosa','maceta-tulipan2':'Tulipán|rosa','maceta-rosa':'Rosa Margarita|rosa blanco','gerbera_amarilla':'Gerbera|amarillo','lirio_amarillo':'Lirio|amarillo',
-'maceta-girasol':'Girasol|amarillo','maceta-margarita-azul':'Margarita|azul','maceta-margarita-roja':'Margarita|rojo blanco','maceta-calendula':'Caléndula|amarillo',
+'gerbera_amarilla':'Gerbera|amarillo','lirio_amarillo':'Lirio|amarillo',
+'maceta-girasol':'Girasol|amarillo','maceta-calendula':'Caléndula|amarillo',
 'ramo-girasol-corzon':'Girasol|amarillo','maceta-tulipan-amarillo':'Tulipán|amarillo','maceta-lilys-rosa':'Lirio|morado rosa','maceta-lilys-rosa-oscuros':'Lirio|rosa',
-'ramo-girasol-rosa':'Girasol Rosa|amarillo rojo','ramo-girasoles':'Girasol|amarillo','ramo-tulipanes':'Tulipán|rojo'};
+'ramo-girasol-rosa':'Girasol Rosa|amarillo rojo','ramo-girasoles':'Girasol|amarillo','ramo-tulipanes':'Tulipán|rojo',
+// Macetas nuevas (y las que faltaban) — el nombre debe ser igual al del archivo en img/flores/
+'maceta-margarita':'Margarita|blanco','maceta-margaritas-azul':'Margarita|azul','maceta-margaritas-roja':'Margarita|rojo blanco','maceta-rosa-rosa-y-margarita':'Rosa Margarita|rosa blanco',
+'maceta-tulipan-fucsia':'Tulipán|rosa','maceta-tulipan-rosaclaro':'Tulipán|rosa','maceta-tulipanes-multicolores':'Tulipán|amarillo rosa azul morado','maceta-tulipanes-rojos':'Tulipán|rojo','maceta_tulipanes-rojos':'Tulipán|rojo',
+'gerbera-rosa':'Gerbera|rosa','lirio-rojo':'Lirio|rojo','lirio-borde-rojo':'Lirio|blanco rojo','lirio-borde-blanco':'Lirio|rojo blanco'};
 const HEX = { rojo: '#D62839', rosa: '#EE5C8C', amarillo: '#F7B928', azul: '#2F6FE0', morado: '#8D6BD8', blanco: '#FFFFFF' };
 const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 const uniq = a => [...new Set(a)];
@@ -134,7 +138,6 @@ if (hover && !calm) {
     raf = requestAnimationFrame(() => {
       const r = t.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
       t.style.setProperty('--ry', (x - .5) * 10 + 'deg'); t.style.setProperty('--rx', (.5 - y) * 10 + 'deg');
-      t.style.setProperty('--gx', x * 100 + '%'); t.style.setProperty('--gy', y * 100 + '%');
     });
   });
   document.addEventListener('pointerout', e => {
