@@ -100,7 +100,7 @@ h2{font:500 clamp(2rem,5vw,3.4rem)/1.05 var(--serif);font-variation-settings:"SO
   box-shadow:0 1px 0 var(--line),0 10px 24px -14px rgba(90,40,25,.35)}
 .card:hover{box-shadow:0 1px 0 var(--line),0 22px 34px -16px rgba(90,40,25,.45)}
 .card img{display:block;flex:none;width:100%;height:auto;aspect-ratio:3/4;object-fit:cover}
-.card b{display:block;padding:12px 14px 14px;font:500 1rem/1.25 'DM Serif Text',Georgia,serif;color:var(--ink)}
+.card b{display:block;padding:12px 14px 14px;font:550 1rem/1.25 'DM Serif Text',Georgia,serif;color:var(--ink)}
 .card::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s;
   background:radial-gradient(circle at var(--gx,50%) var(--gy,50%),rgba(255,255,255,.35),transparent 55%)}
 .card:hover::after{opacity:1}
