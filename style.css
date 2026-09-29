@@ -259,13 +259,16 @@ dialog[open]{animation:pop .35s cubic-bezier(.2,.9,.3,1.2)}
 .faq p{margin:0 0 20px;color:var(--mut)}
 
 /* ── Reseña ampliada (al hacer clic en una tarjeta) ── */
+#rvview{width:fit-content;max-width:94vw}
+#rvview .dlg{grid-template-columns:auto minmax(260px,360px)}
 #rvview .dlg:has(.rvv-fig[hidden]){grid-template-columns:1fr}
-.rvv-fig{margin:0;line-height:0;aspect-ratio:3/4;max-height:92vh;background:#fff}
-.rvv-fig img{width:100%;height:100%;object-fit:cover;display:block}
+#rvview .dlg>div{padding:32px 44px 32px 36px}
+.rvv-fig{margin:0;line-height:0;display:grid;place-items:center;padding:12px;background:transparent}
+.rvv-fig img{display:block;width:auto;height:auto;max-width:calc(94vw - 440px);max-height:calc(92vh - 24px);object-fit:contain;border-radius:14px}
 .rvv-text{font:500 1.35rem/1.5 var(--serif);font-variation-settings:"SOFT" 100;color:var(--ink)}
 #rvview .rv-stars{font-size:1.3rem}
 #rvview .rv-who{font-size:1rem}
-@media(max-width:700px){.rvv-fig{aspect-ratio:auto;max-height:min(50vh,100vw);object-fit:cover}}
+@media(max-width:700px){#rvview{width:94vw}#rvview .dlg{grid-template-columns:1fr}.rvv-fig img{max-width:100%;max-height:62vh}#rvview .dlg>div{padding:22px}}
 
 /* ── Fondo de flores: desde el final del catálogo hasta el footer ── */
 .fz{position:relative;isolation:isolate}
