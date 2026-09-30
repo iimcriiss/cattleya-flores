@@ -281,3 +281,7 @@ dialog[open]{animation:pop .35s cubic-bezier(.2,.9,.3,1.2)}
 /* Formulario de reseña: foto y mensaje */
 .rvfoto{display:grid;gap:6px;color:var(--mut);font-size:.9rem}
 .rvmsg{min-height:1.3em;font-size:.9rem}
+
+.rvok{display:flex;gap:10px;align-items:flex-start;font-size:.85rem;line-height:1.35;color:var(--mut)}
+.rvf .rvok input{width:auto;flex:none;margin:2px 0 0;padding:0;accent-color:var(--pink)}
+.rvok a{color:var(--ink)}

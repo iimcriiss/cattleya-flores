@@ -38,6 +38,7 @@ export async function onRequestPost({ request, env }) {
 
   if (f.get('web')) return json({ ok: true }); // campo trampa para bots: se ignora en silencio
 
+    if (f.get('acepto') !== '1') return json({ error: 'Debes aceptar la política de datos para enviar tu reseña' }, 400);
   const n = limpiar(f.get('n'), 40);
   const c = limpiar(f.get('c'), 40);
   const t = limpiar(f.get('t'), 400);
@@ -63,7 +64,7 @@ export async function onRequestPost({ request, env }) {
     img = '/api/foto/' + id + '.' + ext;
   }
 
-  await env.RESENAS.put('rev:' + id, JSON.stringify({ id, n, c, s, t, img, ok: false, ts: Date.now() }));
+  await env.RESENAS.put('rev:' + id, JSON.stringify({ id, n, c, s, t, img, ok: false, ts: Date.now(), acepto: new Date().toISOString() }));
   await env.RESENAS.put(rk, String(usados + 1), { expirationTtl: 3600 });
   return json({ ok: true });
 }
