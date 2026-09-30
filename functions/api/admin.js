@@ -1,11 +1,6 @@
 // Panel privado: ver, aprobar y borrar reseñas. Necesita el secreto ADMIN_KEY.
 const json = (obj, status = 200) =>
-  new Response(JSON.stringify(obj), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' } });
-
-// Borra la copia guardada de la lista pública para que los cambios se vean pronto
-const purgar = async (request) => {
-  try { await caches.default.delete(new Request(new URL('/api/resenas', request.url).toString())); } catch {}
-};
+  new Response(JSON.stringify(obj), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
 
 function igual(a, b) { // comparación que no filtra información por tiempo
   if (a.length !== b.length) return false;
@@ -35,13 +30,11 @@ export async function onRequestPost({ request, env }) {
   if (b.accion === 'aprobar' || b.accion === 'ocultar') {
     r.ok = b.accion === 'aprobar';
     await env.RESENAS.put('rev:' + id, JSON.stringify(r));
-    await purgar(request);
     return json({ ok: true });
   }
   if (b.accion === 'borrar') {
     if (r.img) await env.FOTOS.delete('resenas/' + r.img.split('/').pop());
     await env.RESENAS.delete('rev:' + id);
-    await purgar(request);
     return json({ ok: true });
   }
   return json({ error: 'Acción inválida' }, 400);

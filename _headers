@@ -1,35 +1,19 @@
-# Seguridad: se aplica a todas las páginas
-/*
-  X-Content-Type-Options: nosniff
-  X-Frame-Options: DENY
-  Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
-  Strict-Transport-Security: max-age=15552000
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+# _headers
 
-# Miniaturas del catálogo: nombre nuevo, se pueden guardar un año
-/img/flores/t/*
-  Cache-Control: public, max-age=31536000, immutable
-
-# Resto de imágenes: 30 días
+# Imágenes (catálogo, banners, logos) – cachear 30 días
 /img/*
-  Cache-Control: public, max-age=2592000
+  Cache-Control: public, max-age=86400, must-revalidate
 
-# CSS y JavaScript: 1 hora (para forzar cambios se sube el ?v= en index.html)
+# CSS y JavaScript – revalidar o caché corta (ej. 1 hora)
 /*.css
   Cache-Control: public, max-age=3600, must-revalidate
 
 /*.js
   Cache-Control: public, max-age=3600, must-revalidate
 
-# HTML: siempre se revisa
+# HTML – que siempre se revise
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
 
 /
   Cache-Control: public, max-age=0, must-revalidate
-
-# Panel privado: que no salga en Google ni se guarde
-/admin.html
-  X-Robots-Tag: noindex, nofollow
-  Cache-Control: no-store
