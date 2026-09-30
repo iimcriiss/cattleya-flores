@@ -70,7 +70,14 @@ acc.addEventListener('click', e => {
 
 // ── Catálogo: tarjetas + filtros con animación FLIP
 const grid = $('#grid');
-grid.innerHTML = P.map(([f, n, c]) => `<button class="card" data-tilt data-c="${c}" data-f="${f}" data-n="${n}"><img src="img/flores/${f}.webp" alt="${n}" width="800" height="1067" loading="lazy"><b>${n}</b></button>`).join('');
+grid.innerHTML = P.map(([f, n, c]) => `<button class="card" data-tilt data-c="${c}" data-f="${f}" data-n="${n}"><img src="img/flores/t/${f}.webp" alt="${n}" width="800" height="1067" loading="lazy" decoding="async"><b>${n}</b></button>`).join('');
+
+// Precarga en segundo plano las miniaturas del catálogo (solo si no hay "Ahorro de datos" activado),
+// para que cambiar de filtro nunca tenga que esperar a que la red traiga una foto que nunca se había visto.
+if (!navigator.connection?.saveData) {
+  const precargar = () => P.forEach(([f]) => { const im = new Image(); im.src = `img/flores/t/${f}.webp`; });
+  ('requestIdleCallback' in window) ? requestIdleCallback(precargar, { timeout: 4000 }) : setTimeout(precargar, 1500);
+}
 grid.addEventListener('click', e => { const c = e.target.closest('.card'); c && abrir(c.dataset.f, c.dataset.n); });
 
 // ── Filtros: categoría + tipo de flor + color + buscador (se combinan entre sí)
@@ -108,11 +115,14 @@ vacio.innerHTML = 'No encontramos flores con esos filtros. <button type="button"
 const sync = () => $$('[data-g]', chips).forEach(x => x.setAttribute('aria-pressed', st[x.dataset.g] === x.dataset.v));
 
 function filtrar() {
-  const antes = new Map(cards.map(c => [c, c.getBoundingClientRect()])), q = norm(st.q).split(/\s+/).filter(Boolean);
-  cards.forEach(c => c.hidden = !((st.c === 'Todo' || c.dataset.c === st.c) && (!st.t || tiene(c, 't', st.t)) && (!st.k || tiene(c, 'k', st.k)) && q.every(w => c.dataset.s.includes(w))));
+  const q = norm(st.q).split(/\s+/).filter(Boolean);
+  const visible = c => (st.c === 'Todo' || c.dataset.c === st.c) && (!st.t || tiene(c, 't', st.t)) && (!st.k || tiene(c, 'k', st.k)) && q.every(w => c.dataset.s.includes(w));
+  const willShow = calm ? null : cards.filter(visible);
+  const antes = calm ? null : new Map(willShow.map(c => [c, c.getBoundingClientRect()]));
+  cards.forEach(c => c.hidden = !visible(c));
   vacio.hidden = cards.some(c => !c.hidden);
   if (calm) return;
-  cards.filter(c => !c.hidden).forEach((c, i) => {
+  willShow.forEach((c, i) => {
     const a = antes.get(c), z = c.getBoundingClientRect();
     c.animate(a.width
       ? [{ translate: `${a.left - z.left}px ${a.top - z.top}px` }, { translate: '0 0' }]  // se mueve a su nuevo lugar
@@ -301,7 +311,7 @@ const DEMO = [
 ];
 {
   const list = location.search.includes('demo') ? DEMO : REVIEWS, stack = $('.rv-stack'), dots = $('.rv-dots');
-  const items = list.length ? list : [{ n: 'Cattleya', s: 5, t: 'Aquí van a brillar las reseñas de quienes ya tienen su flor para siempre. ¡Sé la primera en dejar la tuya!' }];
+  const items = (list.length ? list : [{ n: 'Cattleya', s: 5, t: 'Aquí van a brillar las reseñas de quienes ya tienen su flor para siempre. ¡Sé la primera en dejar la tuya!' }]).map(r => ({ ...r, s: Math.min(5, Math.max(1, Math.round(+r.s) || 5)) }));
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   stack.innerHTML = items.map((r, i) => `<article class="rv-card" style="--a:${COL[i % 5]}">${r.img ? `<img src="${esc(r.img)}" alt="" loading="lazy">` : ''}<div><span class="rv-stars" aria-label="${r.s} de 5 estrellas">${'★'.repeat(r.s)}${'☆'.repeat(5 - r.s)}</span><p>“${esc(r.t)}”</p><b class="rv-who">${esc(r.n)}${r.c ? ` <small>· ${esc(r.c)}</small>` : ''}</b><button type="button" class="rv-view" data-i="${i}">Ver reseña</button></div></article>`).join('');
   const cs = $$('.rv-card', stack), N = items.length; let cur = 0, busy = false, hold = false;
