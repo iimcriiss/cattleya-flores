@@ -70,14 +70,7 @@ acc.addEventListener('click', e => {
 
 // ── Catálogo: tarjetas + filtros con animación FLIP
 const grid = $('#grid');
-grid.innerHTML = P.map(([f, n, c]) => `<button class="card" data-tilt data-c="${c}" data-f="${f}" data-n="${n}"><img src="img/flores/t/${f}.webp" alt="${n}" width="800" height="1067" loading="lazy" decoding="async"><b>${n}</b></button>`).join('');
-
-// Precarga en segundo plano las miniaturas del catálogo (solo si no hay "Ahorro de datos" activado),
-// para que cambiar de filtro nunca tenga que esperar a que la red traiga una foto que nunca se había visto.
-if (!navigator.connection?.saveData) {
-  const precargar = () => P.forEach(([f]) => { const im = new Image(); im.src = `img/flores/t/${f}.webp`; });
-  ('requestIdleCallback' in window) ? requestIdleCallback(precargar, { timeout: 4000 }) : setTimeout(precargar, 1500);
-}
+grid.innerHTML = P.map(([f, n, c]) => `<button class="card" data-tilt data-c="${c}" data-f="${f}" data-n="${n}"><img src="img/flores/${f}.webp" alt="${n}" width="800" height="1067" loading="lazy"><b>${n}</b></button>`).join('');
 grid.addEventListener('click', e => { const c = e.target.closest('.card'); c && abrir(c.dataset.f, c.dataset.n); });
 
 // ── Filtros: categoría + tipo de flor + color + buscador (se combinan entre sí)
@@ -115,14 +108,11 @@ vacio.innerHTML = 'No encontramos flores con esos filtros. <button type="button"
 const sync = () => $$('[data-g]', chips).forEach(x => x.setAttribute('aria-pressed', st[x.dataset.g] === x.dataset.v));
 
 function filtrar() {
-  const q = norm(st.q).split(/\s+/).filter(Boolean);
-  const visible = c => (st.c === 'Todo' || c.dataset.c === st.c) && (!st.t || tiene(c, 't', st.t)) && (!st.k || tiene(c, 'k', st.k)) && q.every(w => c.dataset.s.includes(w));
-  const willShow = calm ? null : cards.filter(visible);
-  const antes = calm ? null : new Map(willShow.map(c => [c, c.getBoundingClientRect()]));
-  cards.forEach(c => c.hidden = !visible(c));
+  const antes = new Map(cards.map(c => [c, c.getBoundingClientRect()])), q = norm(st.q).split(/\s+/).filter(Boolean);
+  cards.forEach(c => c.hidden = !((st.c === 'Todo' || c.dataset.c === st.c) && (!st.t || tiene(c, 't', st.t)) && (!st.k || tiene(c, 'k', st.k)) && q.every(w => c.dataset.s.includes(w))));
   vacio.hidden = cards.some(c => !c.hidden);
   if (calm) return;
-  willShow.forEach((c, i) => {
+  cards.filter(c => !c.hidden).forEach((c, i) => {
     const a = antes.get(c), z = c.getBoundingClientRect();
     c.animate(a.width
       ? [{ translate: `${a.left - z.left}px ${a.top - z.top}px` }, { translate: '0 0' }]  // se mueve a su nuevo lugar
@@ -201,7 +191,7 @@ if (!calm) {
   addEventListener('resize', () => g = fit(cv));
   document.addEventListener('pointerdown', e => {
     if (e.button || e.target.closest('a,button,dialog,input')) return;
-    flores.push({ x: e.clientX, y: e.clientY + scrollY, t: performance.now(), c: COL[Math.random() * COL.length | 0], R: 20 + Math.random() * 12, r: Math.random() * 6.283 });
+    flores.push({ x: e.clientX, y: e.clientY + scrollY, t: performance.now(), c: COL[Math.random() * COL.length | 0], R: 26 + Math.random() * 16, r: Math.random() * 6.283 });
     if (flores.length > 40) flores.shift();
     if (!corriendo) { corriendo = true; requestAnimationFrame(frame); }
   });
@@ -218,10 +208,8 @@ if (!calm) {
 }
 
 // ── Fondo interactivo: florecitas que flotan, se mueven con el scroll y se apartan del mouse
-// Solo se ven sobre el header, el hero, "Lo más destacado" y el catálogo — se cortan justo donde
-// empieza el fondo nuevo de fotos (el div#bg-end marca ese límite).
 {
-  const cv = $('#bg'), bgEnd = $('#bg-end'); let g = fit(cv), mx = -999, my = -999;
+  const cv = $('#bg'); let g = fit(cv), mx = -999, my = -999;
   const M = 60, mk = () => Array.from({ length: Math.min(28, Math.max(10, Math.round(innerWidth * innerHeight / 55000))) }, () => ({
     x: Math.random() * innerWidth, y: Math.random() * innerHeight, R: 14 + Math.random() * 22, d: .3 + Math.random() * .7,
     r: Math.random() * 6.283, s: (Math.random() - .5) * .004, vx: (Math.random() - .5) * .14, vy: -.04 - Math.random() * .12,
@@ -233,20 +221,15 @@ if (!calm) {
   const draw = mover => {
     const W = innerWidth, H = innerHeight, span = H + M * 2;
     g.clearRect(0, 0, W, H);
-    const cut = bgEnd.getBoundingClientRect().top;
-    if (cut <= 0) return; // ya se pasó el catálogo: no dibuja nada, ni siquiera recorre el array
-    if (cut < H) { g.save(); g.beginPath(); g.rect(0, 0, W, cut); g.clip(); }
     fl.forEach(f => {
       if (mover) { f.x += f.vx; f.y += f.vy; f.r += f.s; if (f.x < -M) f.x = W + M; if (f.x > W + M) f.x = -M; }
       const x = f.x, y = (((f.y - scrollY * f.d * .15) % span) + span) % span - M;
-      if (y > cut + M) return;
       const dx = x - mx, dy = y - my, dist = Math.hypot(dx, dy);
       if (mover && dist < 150 && dist > 0) { const k = (1 - dist / 150) * 1.6; f.ox += dx / dist * k; f.oy += dy / dist * k; f.r += k * .01; }
       f.ox *= .94; f.oy *= .94;
       g.globalAlpha = .22 + .2 * f.d;
       g.save(); g.translate(x + f.ox, y + f.oy); g.rotate(f.r); flor(g, f.c, f.R, false); g.restore();
     });
-    if (cut < H) g.restore();
   };
   if (calm) { draw(false); addEventListener('scroll', () => draw(false), { passive: true }); }
   else (function loop() { draw(true); requestAnimationFrame(loop); })();
@@ -311,7 +294,7 @@ const DEMO = [
 ];
 {
   const list = location.search.includes('demo') ? DEMO : REVIEWS, stack = $('.rv-stack'), dots = $('.rv-dots');
-  const items = (list.length ? list : [{ n: 'Cattleya', s: 5, t: 'Aquí van a brillar las reseñas de quienes ya tienen su flor para siempre. ¡Sé la primera en dejar la tuya!' }]).map(r => ({ ...r, s: Math.min(5, Math.max(1, Math.round(+r.s) || 5)) }));
+  const items = list.length ? list : [{ n: 'Cattleya', s: 5, t: 'Aquí van a brillar las reseñas de quienes ya tienen su flor para siempre. ¡Sé la primera en dejar la tuya!' }];
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   stack.innerHTML = items.map((r, i) => `<article class="rv-card" style="--a:${COL[i % 5]}">${r.img ? `<img src="${esc(r.img)}" alt="" loading="lazy">` : ''}<div><span class="rv-stars" aria-label="${r.s} de 5 estrellas">${'★'.repeat(r.s)}${'☆'.repeat(5 - r.s)}</span><p>“${esc(r.t)}”</p><b class="rv-who">${esc(r.n)}${r.c ? ` <small>· ${esc(r.c)}</small>` : ''}</b><button type="button" class="rv-view" data-i="${i}">Ver reseña</button></div></article>`).join('');
   const cs = $$('.rv-card', stack), N = items.length; let cur = 0, busy = false, hold = false;
