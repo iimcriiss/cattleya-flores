@@ -6,7 +6,7 @@ const MIME = { jpg: 'image/jpeg', png: 'image/png', webp: 'image/webp' };
 const json = (obj, status = 200, extra = {}) =>
   new Response(JSON.stringify(obj), {
     status,
-    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...extra },
+    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', ...extra },
   });
 
 const limpiar = (s, max) => String(s ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
@@ -20,19 +20,38 @@ function tipoReal(b) {
 }
 
 // GET /api/resenas → solo las reseñas aprobadas
-export async function onRequestGet({ env }) {
-  const lista = await env.RESENAS.list({ prefix: 'rev:', limit: 200 });
-  const todas = await Promise.all(lista.keys.map((k) => env.RESENAS.get(k.name, 'json')));
-  const ok = todas
-    .filter((r) => r && r.ok)
-    .sort((a, b) => b.ts - a.ts)
-    .slice(0, 30)
-    .map((r) => ({ n: r.n, c: r.c || undefined, s: r.s, t: r.t, img: r.img || undefined }));
-  return json(ok, 200, { 'cache-control': 'public, max-age=60' });
+export async function onRequestGet({ request, env, waitUntil }) {
+  // Guarda la lista 2 minutos en el caché de Cloudflare para gastar casi nada de KV
+  const cache = typeof caches !== 'undefined' ? caches.default : null;
+  const clave = new Request(new URL('/api/resenas', request.url).toString());
+  try { const hit = cache && (await cache.match(clave)); if (hit) return hit; } catch {}
+  try {
+    const lista = await env.RESENAS.list({ prefix: 'rev:', limit: 200 });
+    const todas = await Promise.all(lista.keys.map((k) => env.RESENAS.get(k.name, 'json')));
+    const ok = todas
+      .filter((r) => r && r.ok)
+      .sort((a, b) => b.ts - a.ts)
+      .slice(0, 30)
+      .map((r) => ({ n: r.n, c: r.c || undefined, s: r.s, t: r.t, img: r.img || undefined }));
+    const res = json(ok, 200, { 'cache-control': 'public, max-age=60, s-maxage=120' });
+    try { if (cache && waitUntil) waitUntil(cache.put(clave, res.clone()).catch(() => {})); } catch {}
+    return res;
+  } catch {
+    return json([], 200); // si KV falla o se agotó el límite del día, la página sigue funcionando sin reseñas
+  }
 }
 
 // POST /api/resenas → guarda una reseña nueva como PENDIENTE
 export async function onRequestPost({ request, env }) {
+  try { return await guardar(request, env); }
+  catch { return json({ error: 'No se pudo guardar tu reseña. Intenta de nuevo en un momento.' }, 500); }
+}
+
+async function guardar(request, env) {
+  // Solo se aceptan envíos que vengan de esta misma página
+  const origen = request.headers.get('Origin');
+  if (origen && origen !== new URL(request.url).origin) return json({ error: 'Origen no permitido' }, 403);
+
   let f;
   try { f = await request.formData(); } catch { return json({ error: 'Formulario inválido' }, 400); }
 
@@ -49,7 +68,7 @@ export async function onRequestPost({ request, env }) {
   const ip = request.headers.get('CF-Connecting-IP') || 'x';
   const rk = 'rl:' + ip;
   const usados = parseInt((await env.RESENAS.get(rk)) || '0', 10);
-  if (usados >= 10) return json({ error: 'Ya enviaste varias reseñas. Intenta de nuevo más tarde.' }, 429);
+  if (usados >= 3) return json({ error: 'Ya enviaste varias reseñas. Intenta de nuevo más tarde.' }, 429);
 
   const id = Date.now().toString(36) + '-' + crypto.randomUUID().replace(/-/g, '').slice(0, 12);
 
