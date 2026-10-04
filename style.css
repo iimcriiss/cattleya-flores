@@ -231,7 +231,9 @@ dialog[open]{animation:pop .35s cubic-bezier(.2,.9,.3,1.2)}
 .rv-card img{flex:none;width:96px;height:128px;object-fit:cover;border-radius:14px;cursor:pointer}
 .rv-card>div{min-width:0;height:100%;display:flex;flex-direction:column;gap:8px}
 .rv-stars{color:#F7B928;font-size:1.15rem;letter-spacing:2px}
-.rv-card p{margin:0;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;font:500 1.05rem/1.45 var(--serif);color:var(--ink)}
+.rv-card p{margin:0;flex:1;min-height:0;overflow:hidden;font:500 1.05rem/1.45 var(--serif);color:var(--ink)}
+/* El recorte con «…» va en un <span> interior: en un hijo directo de flex (el <p>) el navegador lo ignora y el texto se cortaba a media línea. Las líneas visibles se ajustan solas al alto disponible (main.js). */
+.rv-clamp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden}
 .rv-who{font-size:.9rem}.rv-who small{font-weight:400;color:var(--mut);font-size:.85rem}
 .rv-view{align-self:flex-start;margin-top:4px;padding:6px 15px;border-radius:999px;border:1.5px solid var(--pink);background:transparent;color:var(--pink);font:700 .78rem Figtree,sans-serif;cursor:pointer;transition:background .2s,color .2s}
 .rv-view:hover{background:var(--pink);color:#fff}
@@ -297,7 +299,6 @@ dialog[open]{animation:pop .35s cubic-bezier(.2,.9,.3,1.2)}
 @media(max-width:700px),(pointer:coarse){
   dialog::backdrop{backdrop-filter:none}
   body:has(dialog[open]) *{backdrop-filter:none!important}
-  /* Scroll fluido: el fondo de florecitas ya se ve suave a resolución normal, y el menú es casi opaco (95%), así que ambos desenfoques no se notan pero cuestan mucho en cada fotograma */
+  /* Scroll fluido: el fondo de florecitas ya se ve suave a resolución normal, así que su desenfoque no se nota pero cuesta mucho en cada fotograma */
   #bg{filter:none}
-  .nav{backdrop-filter:none}
 }

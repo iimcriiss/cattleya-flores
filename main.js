@@ -33,7 +33,11 @@ const F = ['bouquet-de-lirios','bouquet-de-lilys-y-tulipanes','bouquet-de-giraso
 const dlg = $('#dlg');
 const abrir = (f, n) => {
   reset();
-  const i = $('img', dlg); i.src = fotoGrande(f); i.alt = n;
+  const i = $('img', dlg), grande = fotoGrande(f), previa = fotoCard(f); i.alt = n; i.dataset.f = f;
+  // Se muestra al instante la miniatura (ya está en caché porque se vio en el catálogo) y se cambia a la foto grande cuando termina de bajar:
+  // así nunca se ve la flor anterior mientras carga la nueva.
+  i.src = previa;
+  if (grande !== previa) { const pre = new Image(); pre.onload = () => { if (i.dataset.f === f) i.src = grande; }; pre.src = grande; }
   $('h3', dlg).textContent = n;
   $('.wa', dlg).href = wa(`Hola! Me interesa ${n} de Cattleya Flores 🌸`);
   dlg.showModal();
@@ -322,7 +326,9 @@ const DEMO = [
   const list = (location.search.includes('demo') ? DEMO : REVIEWS).map(r => ({ ...r, s: Math.min(5, Math.max(1, +r.s || 5)), img: imgOk(r.img) ? r.img : undefined })), stack = $('.rv-stack'), dots = $('.rv-dots');
   const items = list.length ? list : [{ n: 'Cattleya', s: 5, t: 'Aquí van a brillar las reseñas de quienes ya tienen su flor para siempre. ¡Sé la primera en dejar la tuya!' }];
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  stack.innerHTML = items.map((r, i) => `<article class="rv-card" style="--a:${COL[i % 5]}">${r.img ? `<img src="${esc(r.img)}" alt="" loading="lazy">` : ''}<div><span class="rv-stars" aria-label="${r.s} de 5 estrellas">${'★'.repeat(r.s)}${'☆'.repeat(5 - r.s)}</span><p>“${esc(r.t)}”</p><b class="rv-who">${esc(r.n)}${r.c ? ` <small>· ${esc(r.c)}</small>` : ''}</b><button type="button" class="rv-view" data-i="${i}">Ver reseña</button></div></article>`).join('');
+  stack.innerHTML = items.map((r, i) => `<article class="rv-card" style="--a:${COL[i % 5]}">${r.img ? `<img src="${esc(r.img)}" alt="" loading="lazy">` : ''}<div><span class="rv-stars" aria-label="${r.s} de 5 estrellas">${'★'.repeat(r.s)}${'☆'.repeat(5 - r.s)}</span><p><span class="rv-clamp">“${esc(r.t)}”</span></p><b class="rv-who">${esc(r.n)}${r.c ? ` <small>· ${esc(r.c)}</small>` : ''}</b><button type="button" class="rv-view" data-i="${i}">Ver reseña</button></div></article>`).join('');
+  const ajustar = () => $$('.rv-card p', stack).forEach(p => { const s = p.firstElementChild; s.style.webkitLineClamp = Math.max(1, Math.floor(p.clientHeight / parseFloat(getComputedStyle(s).lineHeight))); });
+  ajustar(); addEventListener('resize', ajustar); document.fonts && document.fonts.ready.then(ajustar);
   const cs = $$('.rv-card', stack), N = items.length; let cur = 0, busy = false, hold = false;
   dots.innerHTML = N > 1 ? items.map((_, i) => `<button aria-label="Reseña ${i + 1}"></button>`).join('') : '';
   const place = () => { cs.forEach((c, i) => c.style.setProperty('--p', (i - cur + N) % N)); $$('button', dots).forEach((d, i) => d.setAttribute('aria-current', i === cur)); };
