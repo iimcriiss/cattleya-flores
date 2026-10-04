@@ -104,7 +104,7 @@ h2{font:500 clamp(2rem,5vw,3.4rem)/1.05 var(--serif);font-variation-settings:"SO
   box-shadow:0 1px 0 var(--line),0 10px 24px -14px rgba(90,40,25,.35)}
 .card:hover{box-shadow:0 1px 0 var(--line),0 22px 34px -16px rgba(90,40,25,.45)}
 .card img{display:block;flex:none;width:100%;height:auto;aspect-ratio:3/4;object-fit:cover}
-.card b{display:block;position:relative;margin-top:-70px;padding:70px 10px 14px;background:linear-gradient(rgba(255,255,255,0),rgba(255,255,255,.6) 30%,#fff 55%);font:600 1rem/1.25 'DM Serif Text',Georgia,serif;color:var(--ink)}
+.card b{display:block;position:relative;margin-top:-70px;padding:70px 10px 14px;background:linear-gradient(rgba(255,255,255,0),rgba(255,255,255,.6) 31px,#fff 57px);font:600 1rem/1.25 'DM Serif Text',Georgia,serif;color:var(--ink)}
 
 /* ── Banner de flores (tarjetas posicionadas por JS) ── */
 #flores-container{position:relative;max-width:1024px;margin:20px auto 0;border-radius:16px;overflow:hidden}
