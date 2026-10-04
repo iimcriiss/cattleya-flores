@@ -2,6 +2,10 @@
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const calm = matchMedia('(prefers-reduced-motion:reduce)').matches;
 const hover = matchMedia('(hover:hover)').matches;
+// Móvil o pantalla táctil: usa fotos livianas (miniatura en tarjetas, versión ligera en el zoom). En escritorio todo sigue igual.
+const movil = matchMedia('(max-width:700px), (pointer:coarse)').matches;
+const fotoCard = f => movil ? `img/flores/t/${f}.webp` : `img/flores/${f}.webp`;
+const fotoGrande = f => movil ? `img/flores/m/${f}.webp` : `img/flores/${f}.webp`;
 const wa = t => `https://wa.me/584247167293?text=${encodeURIComponent(t)}`;
 
 // ── Productos: [archivo, nombre, categoría]. Para agregar uno, suma una línea aquí y su .webp en img/flores/
@@ -27,7 +31,7 @@ const F = ['bouquet-de-lirios','bouquet-de-lilys-y-tulipanes','bouquet-de-giraso
 const dlg = $('#dlg');
 const abrir = (f, n) => {
   reset();
-  const i = $('img', dlg); i.src = `img/flores/${f}.webp`; i.alt = n;
+  const i = $('img', dlg); i.src = fotoGrande(f); i.alt = n;
   $('h3', dlg).textContent = n;
   $('.wa', dlg).href = wa(`Hola! Me interesa ${n} de Cattleya Flores 🌸`);
   dlg.showModal();
@@ -37,19 +41,19 @@ dlg.addEventListener('close', () => reset());
 
 // ── Zoom en la foto del diálogo: toque/clic para acercar y alejar · arrastrar para mover (mouse y táctil funcionan igual)
 const zm = $('.zm', dlg), zi = $('img', zm), ZOOM = 2.4;
-let zs = 1, tx = 0, ty = 0, dr = null;
+let zs = 1, tx = 0, ty = 0, dr = null, rz = null, rafZ = 0;
 function pintar() { zi.style.transform = zs === 1 ? '' : `translate(${tx}px,${ty}px) scale(${zs})`; zm.classList.toggle('z', zs !== 1); }
-function limitar() { const r = zm.getBoundingClientRect(); tx = Math.min(0, Math.max(r.width * (1 - zs), tx)); ty = Math.min(0, Math.max(r.height * (1 - zs), ty)); }
+function limitar() { const r = (movil && rz) || zm.getBoundingClientRect(); tx = Math.min(0, Math.max(r.width * (1 - zs), tx)); ty = Math.min(0, Math.max(r.height * (1 - zs), ty)); }
 function acercar(x, y) { const r = zm.getBoundingClientRect(); zs = ZOOM; tx = (x - r.left) * (1 - zs); ty = (y - r.top) * (1 - zs); limitar(); pintar(); }
-function reset() { zs = 1; tx = ty = 0; dr = null; zm.classList.remove('drag'); pintar(); }
+function reset() { zs = 1; tx = ty = 0; dr = null; rz = null; zm.classList.remove('drag'); pintar(); }
 zm.addEventListener('pointermove', e => {
   if (!dr) return;
   const dx = e.clientX - dr.x, dy = e.clientY - dr.y;
   if (Math.hypot(e.clientX - dr.x0, e.clientY - dr.y0) > 8) dr.mov = true;
-  if (zs !== 1 && dr.mov) { tx += dx; ty += dy; limitar(); pintar(); zm.classList.add('drag'); }
+  if (zs !== 1 && dr.mov) { tx += dx; ty += dy; limitar(); if (movil) rafZ ||= requestAnimationFrame(() => { rafZ = 0; pintar(); }); else pintar(); zm.classList.add('drag'); }
   dr.x = e.clientX; dr.y = e.clientY;
 });
-zm.addEventListener('pointerdown', e => { if (e.button) return; zm.setPointerCapture?.(e.pointerId); dr = { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, mov: false }; });
+zm.addEventListener('pointerdown', e => { if (e.button) return; zm.setPointerCapture?.(e.pointerId); if (movil) rz = zm.getBoundingClientRect(); dr = { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, mov: false }; });
 zm.addEventListener('pointerup', e => {
   if (!dr) return;
   if (!dr.mov) zs === 1 ? acercar(e.clientX, e.clientY) : reset();   // toque = acercar / alejar
@@ -60,7 +64,7 @@ zm.addEventListener('dragstart', e => e.preventDefault());
 
 // ── Destacados: acordeón
 const acc = $('.acc');
-acc.innerHTML = F.map(([f, n], i) => `<button data-f="${f}" data-n="${n}" class="${i ? '' : 'on'}" aria-expanded="${!i}" aria-label="${n}"><img src="img/flores/${f}.webp" alt="" loading="lazy"><span>${n}</span></button>`).join('');
+acc.innerHTML = F.map(([f, n], i) => `<button data-f="${f}" data-n="${n}" class="${i ? '' : 'on'}" aria-expanded="${!i}" aria-label="${n}"><img src="${fotoCard(f)}" alt="" loading="lazy"><span>${n}</span></button>`).join('');
 const activar = b => $$('button', acc).forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-expanded', x === b); });
 if (hover) acc.addEventListener('pointerover', e => { const b = e.target.closest('button'); b && activar(b); });
 acc.addEventListener('click', e => {
@@ -70,7 +74,7 @@ acc.addEventListener('click', e => {
 
 // ── Catálogo: tarjetas + filtros con animación FLIP
 const grid = $('#grid');
-grid.innerHTML = P.map(([f, n, c]) => `<button class="card" data-tilt data-c="${c}" data-f="${f}" data-n="${n}"><img src="img/flores/${f}.webp" alt="${n}" width="800" height="1067" loading="lazy"><b>${n}</b></button>`).join('');
+grid.innerHTML = P.map(([f, n, c]) => `<button class="card" data-tilt data-c="${c}" data-f="${f}" data-n="${n}"><img src="${fotoCard(f)}" alt="${n}" width="800" height="1067" loading="lazy"><b>${n}</b></button>`).join('');
 grid.addEventListener('click', e => { const c = e.target.closest('.card'); c && abrir(c.dataset.f, c.dataset.n); });
 
 // ── Filtros: categoría + tipo de flor + color + buscador (se combinan entre sí)
@@ -239,7 +243,7 @@ if (!calm) {
     if (cut < H) g.restore();
   };
   if (calm) { draw(false); addEventListener('scroll', () => draw(false), { passive: true }); }
-  else (function loop() { draw(true); requestAnimationFrame(loop); })();
+  else (function loop() { if (!(movil && document.querySelector('dialog[open]'))) draw(true); requestAnimationFrame(loop); })();
 }
 
 // ── Banner de flores: las tarjetas se posicionan sobre el estante (desktop y móvil)

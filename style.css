@@ -291,3 +291,10 @@ dialog[open]{animation:pop .35s cubic-bezier(.2,.9,.3,1.2)}
 .rvok{display:flex;gap:10px;align-items:flex-start;font-size:.85rem;line-height:1.35;color:var(--mut)}
 .rvf .rvok input{width:auto;flex:none;margin:2px 0 0;padding:0;accent-color:var(--pink)}
 .rvok a{color:var(--ink)}
+
+/* Móvil/táctil: mientras hay una ventana abierta (foto, reseña) se quitan los desenfoques del fondo.
+   Se ve igual porque el fondo queda tapado por el velo oscuro, y evita que se trabe el zoom. Escritorio no cambia. */
+@media(max-width:700px),(pointer:coarse){
+  dialog::backdrop{backdrop-filter:none}
+  body:has(dialog[open]) *{backdrop-filter:none!important}
+}
