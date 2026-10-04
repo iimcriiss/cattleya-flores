@@ -297,4 +297,7 @@ dialog[open]{animation:pop .35s cubic-bezier(.2,.9,.3,1.2)}
 @media(max-width:700px),(pointer:coarse){
   dialog::backdrop{backdrop-filter:none}
   body:has(dialog[open]) *{backdrop-filter:none!important}
+  /* Scroll fluido: el fondo de florecitas ya se ve suave a resolución normal, y el menú es casi opaco (95%), así que ambos desenfoques no se notan pero cuestan mucho en cada fotograma */
+  #bg{filter:none}
+  .nav{backdrop-filter:none}
 }

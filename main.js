@@ -4,6 +4,8 @@ const calm = matchMedia('(prefers-reduced-motion:reduce)').matches;
 const hover = matchMedia('(hover:hover)').matches;
 // Móvil o pantalla táctil: usa fotos livianas (miniatura en tarjetas, versión ligera en el zoom). En escritorio todo sigue igual.
 const movil = matchMedia('(max-width:700px), (pointer:coarse)').matches;
+// Fondo de florecitas en móvil: lienzo a resolución normal (son flores suaves y translúcidas) y ~30 cuadros/s con el mismo movimiento aparente
+const BG_DPR = movil ? 1 : 2, BG_MS = movil ? 30 : 0;
 const fotoCard = f => movil ? `img/flores/t/${f}.webp` : `img/flores/${f}.webp`;
 const fotoGrande = f => movil ? `img/flores/m/${f}.webp` : `img/flores/${f}.webp`;
 const wa = t => `https://wa.me/584247167293?text=${encodeURIComponent(t)}`;
@@ -187,18 +189,30 @@ function flor(g, c, R, felpa) {
   }
   g.fillStyle = c === '#F7B928' ? '#EE5C8C' : '#F7B928'; g.beginPath(); g.arc(0, 0, R * .2, 0, 6.283); g.fill();
 }
-const fit = cv => { const d = Math.min(devicePixelRatio || 1, 2), g = cv.getContext('2d'); cv.width = innerWidth * d; cv.height = innerHeight * d; g.setTransform(d, 0, 0, d, 0, 0); return g; };
+const fit = (cv, max = 2) => { const d = Math.min(devicePixelRatio || 1, max), g = cv.getContext('2d'); cv.width = innerWidth * d; cv.height = innerHeight * d; g.setTransform(d, 0, 0, d, 0, 0); return g; };
 
 // ── Clic en cualquier parte de la página: planta una flor (queda anclada a la página al hacer scroll)
 if (!calm) {
   const cv = $('#pipe'); let g = fit(cv), flores = [], corriendo = false; const VIDA = 5200;
   addEventListener('resize', () => g = fit(cv));
-  document.addEventListener('pointerdown', e => {
-    if (e.button || e.target.closest('a,button,dialog,input')) return;
+  const plantar = e => {
     flores.push({ x: e.clientX, y: e.clientY + scrollY, t: performance.now(), c: COL[Math.random() * COL.length | 0], R: 20 + Math.random() * 12, r: Math.random() * 6.283 });
     if (flores.length > 40) flores.shift();
     if (!corriendo) { corriendo = true; requestAnimationFrame(frame); }
+  };
+  // Con mouse: se planta al hacer clic (igual que siempre). Con el dedo: solo en un toque corto, para que hacer scroll no plante flores ni cargue la página.
+  let toque = null;
+  document.addEventListener('pointerdown', e => {
+    if (e.button || e.target.closest('a,button,dialog,input')) return;
+    if (e.pointerType === 'touch') { toque = { x: e.clientX, y: e.clientY, t: performance.now() }; return; }
+    plantar(e);
   });
+  document.addEventListener('pointerup', e => {
+    if (!toque || e.pointerType !== 'touch') return;
+    const q = toque; toque = null;
+    if (Math.hypot(e.clientX - q.x, e.clientY - q.y) < 10 && performance.now() - q.t < 600) plantar(e);
+  });
+  document.addEventListener('pointercancel', () => { toque = null; });
   function frame(now) {
     g.clearRect(0, 0, innerWidth, innerHeight);
     flores = flores.filter(f => now - f.t < VIDA);
@@ -215,23 +229,23 @@ if (!calm) {
 // Solo se ven sobre el header, el hero, "Lo más destacado" y el catálogo — se cortan justo donde
 // empieza el fondo nuevo de fotos (el div#bg-end marca ese límite).
 {
-  const cv = $('#bg'), bgEnd = $('#bg-end'); let g = fit(cv), mx = -999, my = -999;
+  const cv = $('#bg'), bgEnd = $('#bg-end'); let g = fit(cv, BG_DPR), mx = -999, my = -999;
   const M = 60, mk = () => Array.from({ length: Math.min(28, Math.max(10, Math.round(innerWidth * innerHeight / 55000))) }, () => ({
     x: Math.random() * innerWidth, y: Math.random() * innerHeight, R: 14 + Math.random() * 22, d: .3 + Math.random() * .7,
     r: Math.random() * 6.283, s: (Math.random() - .5) * .004, vx: (Math.random() - .5) * .14, vy: -.04 - Math.random() * .12,
     c: COL[Math.random() * COL.length | 0], ox: 0, oy: 0 }));
   let fl = mk();
-  addEventListener('resize', () => { g = fit(cv); fl = mk(); });
+  addEventListener('resize', () => { g = fit(cv, BG_DPR); fl = mk(); });
   addEventListener('pointermove', e => { if (e.pointerType !== 'touch') { mx = e.clientX; my = e.clientY; } });
   document.documentElement.addEventListener('mouseleave', () => mx = my = -999);
-  const draw = mover => {
+  const draw = (mover, k = 1) => {
     const W = innerWidth, H = innerHeight, span = H + M * 2;
     g.clearRect(0, 0, W, H);
     const cut = bgEnd.getBoundingClientRect().top;
     if (cut <= 0) return; // ya se pasó el catálogo: no dibuja nada, ni siquiera recorre el array
     if (cut < H) { g.save(); g.beginPath(); g.rect(0, 0, W, cut); g.clip(); }
     fl.forEach(f => {
-      if (mover) { f.x += f.vx; f.y += f.vy; f.r += f.s; if (f.x < -M) f.x = W + M; if (f.x > W + M) f.x = -M; }
+      if (mover) { f.x += f.vx * k; f.y += f.vy * k; f.r += f.s * k; if (f.x < -M) f.x = W + M; if (f.x > W + M) f.x = -M; }
       const x = f.x, y = (((f.y - scrollY * f.d * .15) % span) + span) % span - M;
       if (y > cut + M) return;
       const dx = x - mx, dy = y - my, dist = Math.hypot(dx, dy);
@@ -243,7 +257,7 @@ if (!calm) {
     if (cut < H) g.restore();
   };
   if (calm) { draw(false); addEventListener('scroll', () => draw(false), { passive: true }); }
-  else (function loop() { if (!(movil && document.querySelector('dialog[open]'))) draw(true); requestAnimationFrame(loop); })();
+  else { let ult = 0; (function loop(now) { if (!(movil && document.querySelector('dialog[open]')) && now - ult >= BG_MS) { draw(true, movil ? Math.min(3, (now - ult) / 16.7) : 1); ult = now; } requestAnimationFrame(loop); })(0); }
 }
 
 // ── Banner de flores: las tarjetas se posicionan sobre el estante (desktop y móvil)
