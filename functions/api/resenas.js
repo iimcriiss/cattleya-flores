@@ -11,6 +11,12 @@ const json = (obj, status = 200, extra = {}) =>
 
 const limpiar = (s, max) => String(s ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
 
+// La IP no se guarda en claro: solo un hash corto, suficiente para limitar envíos por conexión.
+async function hashIp(ip) {
+  const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(ip));
+  return [...new Uint8Array(d)].slice(0, 12).map((x) => x.toString(16).padStart(2, '0')).join('');
+}
+
 function tipoReal(b) {
   if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return 'jpg';
   if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47) return 'png';
@@ -50,6 +56,8 @@ async function guardar(request, env) {
   const origen = request.headers.get('Origin');
   if (origen && origen !== new URL(request.url).origin) return json({ error: 'Origen no permitido' }, 403);
 
+  if (parseInt(request.headers.get('Content-Length') || '0', 10) > MAX_FOTO + 64 * 1024) return json({ error: 'La foto pesa demasiado (máximo 3 MB)' }, 413);
+
   let f;
   try { f = await request.formData(); } catch { return json({ error: 'Formulario inválido' }, 400); }
 
@@ -62,8 +70,7 @@ async function guardar(request, env) {
   const s = Math.min(5, Math.max(1, parseInt(f.get('s'), 10) || 5));
   if (!n || !t) return json({ error: 'Falta tu nombre o tu reseña' }, 400);
 
-  const ip = request.headers.get('CF-Connecting-IP') || 'x';
-  const rk = 'rl:' + ip;
+  const rk = 'rl:' + (await hashIp(request.headers.get('CF-Connecting-IP') || 'x'));
   const usados = parseInt((await env.RESENAS.get(rk)) || '0', 10);
   if (usados >= 3) return json({ error: 'Ya enviaste varias reseñas. Intenta de nuevo más tarde.' }, 429);
 

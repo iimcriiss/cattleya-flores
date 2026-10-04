@@ -8,5 +8,7 @@ export async function onRequestGet({ params, env }) {
   obj.writeHttpMetadata(h);
   h.set('cache-control', 'public, max-age=86400');
   h.set('x-content-type-options', 'nosniff');
+  h.set('content-security-policy', "default-src 'none'");
+  h.set('cross-origin-resource-policy', 'same-origin');
   return new Response(obj.body, { headers: h });
 }
