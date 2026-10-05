@@ -30,5 +30,5 @@
 /admin.html
   X-Robots-Tag: noindex, nofollow
 
-/admin-panel.js
+/js/admin-panel.js
   X-Robots-Tag: noindex, nofollow
