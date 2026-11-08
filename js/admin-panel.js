@@ -97,7 +97,7 @@ function recortar(file) {
       const s = s0 * z, cx = (px - ox) / s, cy = (py - oy) / s;
       z = nz; ox = px - cx * s0 * z; oy = py - cy * s0 * z; poner();
     };
-    const b0 = vp.getBoundingClientRect(); W = b0.width; H = b0.height; s0 = Math.max(W / nw, H / nh);
+    W = vp.clientWidth; H = vp.clientHeight; /* sin el borde del marco */ s0 = Math.max(W / nw, H / nh);
     ox = (W - nw * s0) / 2; oy = (H - nh * s0) / 2; poner();
 
     const pts = new Map(); let ult = null;
@@ -110,18 +110,18 @@ function recortar(file) {
       if (pts.size === 1) { ox += cur.x - prev.x; oy += cur.y - prev.y; poner(); }
       else if (pts.size === 2 && ult) { // dos dedos: mover y acercar
         const d = dist(), m = medio(), b = vp.getBoundingClientRect();
-        ox += m.x - ult.m.x; oy += m.y - ult.m.y; zoom(z * d / ult.d, m.x - b.left, m.y - b.top); ult = { d, m };
+        ox += m.x - ult.m.x; oy += m.y - ult.m.y; zoom(z * d / ult.d, m.x - b.left - vp.clientLeft, m.y - b.top - vp.clientTop); ult = { d, m };
       }
     };
     vp.onpointerup = vp.onpointercancel = e => { pts.delete(e.pointerId); ult = null; };
-    vp.onwheel = e => { e.preventDefault(); const b = vp.getBoundingClientRect(); zoom(z * Math.exp(-e.deltaY * .002), e.clientX - b.left, e.clientY - b.top); };
+    vp.onwheel = e => { e.preventDefault(); const b = vp.getBoundingClientRect(); zoom(z * Math.exp(-e.deltaY * .002), e.clientX - b.left - vp.clientLeft, e.clientY - b.top - vp.clientTop); };
     zr.oninput = () => zoom(parseFloat(zr.value), W / 2, H / 2);
 
     const cerrar = res => { fin(res); bmp.close?.(); if (dlg.open) dlg.close(); };
     dlg.onclose = () => fin(null);
     $('#reccan').onclick = () => cerrar(null);
     $('#recok').onclick = async () => {
-      const s = s0 * z / r;                                   // píxeles de pantalla por píxel de la foto original
+      const s = s0 * z * r;                                   // píxeles de pantalla por píxel de la foto original (la copia en pantalla está reducida por r)
       const sw = W / s, sh = H / s, sx = Math.max(0, Math.min(-ox / s, bmp.width - sw)), sy = Math.max(0, Math.min(-oy / s, bmp.height - sh));
       const sacar = (w, h, q) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(bmp, sx, sy, sw, sh, 0, 0, w, h); return new Promise((ok, no) => c.toBlob(b => b ? ok(b) : no(new Error('x')), 'image/webp', q)); };
       try { const [grande, mini] = await Promise.all([sacar(900, 1200, .82), sacar(420, 560, .8)]); cerrar({ grande, mini }); }
