@@ -51,6 +51,7 @@ const escH = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;
 const F = ['bouquet-de-lirios','bouquet-de-lilys-y-tulipanes','bouquet-de-girasoles'].map(f => P.find(p => p[0] === f)).filter(Boolean);
 // ── Diálogo de producto (el mensaje de WhatsApp lleva el nombre)
 const dlg = $('#dlg');
+const zmBox = $('.zm', dlg);
 const abrir = (f, n) => {
   reset();
   const i = $('img', dlg), grande = fotoGrande(f), previa = fotoCard(f); i.alt = n; i.dataset.f = f;
@@ -58,6 +59,8 @@ const abrir = (f, n) => {
   // así nunca se ve la flor anterior mientras carga la nueva.
   i.src = previa;
   if (grande !== previa) { const pre = new Image(); pre.onload = () => { if (i.dataset.f === f) i.src = grande; }; pre.src = grande; }
+  $('.nuevo', zmBox)?.remove();   // cinta «Nuevo» también en la foto grande
+  if (esNuevo(f)) zmBox.insertAdjacentHTML('afterbegin', '<span class="nuevo" aria-hidden="true"><span>Nuevo</span></span>');
   $('h3', dlg).textContent = n;
   $('p', dlg).textContent = DYN[f]?.d || 'Hecha a mano con limpiapipas. Cuéntanos qué tienes en mente y te ayudamos por WhatsApp.';
   $('.wa', dlg).href = wa(`Hola! Me interesa ${n} de Cattleya Flores 🌸`);

@@ -105,9 +105,9 @@ h2{font:500 clamp(2rem,5vw,3.4rem)/1.05 var(--serif);font-variation-settings:"SO
 .card:hover{box-shadow:0 1px 0 var(--line),0 22px 34px -16px rgba(90,40,25,.45)}
 .card img{display:block;flex:none;width:100%;height:auto;aspect-ratio:3/4;object-fit:cover}
 /* Cinta «Nuevo» (esquina superior izquierda) */
-.card .nuevo{position:absolute;top:0;left:0;z-index:2;width:92px;height:92px;overflow:hidden;pointer-events:none}
-.card .nuevo span{position:absolute;top:19px;left:-31px;width:128px;padding:5px 0;text-align:center;transform:rotate(-45deg);background:linear-gradient(135deg,#EE5C8C,#D9406F);color:#fff;font:800 .72rem/1 Figtree,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;box-shadow:0 2px 6px rgba(90,40,25,.35)}
-@media(max-width:700px){.card .nuevo{width:76px;height:76px}.card .nuevo span{top:15px;left:-27px;width:106px;padding:4px 0;font-size:.62rem}}
+.nuevo{position:absolute;top:0;left:0;z-index:2;width:92px;height:92px;overflow:hidden;pointer-events:none}
+.nuevo span{position:absolute;top:19px;left:-31px;width:128px;padding:5px 0;text-align:center;transform:rotate(-45deg);background:linear-gradient(135deg,#EE5C8C,#D9406F);color:#fff;font:800 .72rem/1 Figtree,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;box-shadow:0 2px 6px rgba(90,40,25,.35)}
+@media(max-width:700px){.nuevo{width:76px;height:76px}.nuevo span{top:15px;left:-27px;width:106px;padding:4px 0;font-size:.62rem}}
 .card b{display:block;position:relative;margin-top:-70px;padding:70px 10px 14px;background:linear-gradient(rgba(255,255,255,0),rgba(255,255,255,.6) 31px,#fff 57px);font:600 1rem/1.25 'DM Serif Text',Georgia,serif;color:var(--ink)}
 
 /* ── Banner de flores (tarjetas posicionadas por JS) ── */
