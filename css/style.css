@@ -194,6 +194,8 @@ dialog[open]{animation:pop .35s cubic-bezier(.2,.9,.3,1.2)}
 }
 
 @media(max-width:700px){.card img{aspect-ratio:2/3;object-fit:contain;background:#fff}}
+/* Fotos hechas en el panel (3:4): en el celular llenan la tarjeta tal como las encuadraste, sin franja blanca */
+@media(max-width:700px){.card img.p34{aspect-ratio:3/4;object-fit:cover}}
 @media(pointer:coarse){.acc button:focus-visible,.card:focus-visible{outline:none}}
 
 .copy a {

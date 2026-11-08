@@ -106,7 +106,7 @@ acc.addEventListener('click', e => {
 const grid = $('#grid');
 const NUEVO_DIAS = 30; // cuántos días muestra la cinta «Nuevo» una flor recién subida desde el panel
 const esNuevo = f => DYN[f]?.ts && Date.now() - DYN[f].ts < NUEVO_DIAS * 864e5;
-grid.innerHTML = P.map(([f, n, c]) => `<button class="card" data-tilt data-c="${c}" data-f="${f}" data-n="${n}">${esNuevo(f) ? '<span class="nuevo" aria-hidden="true"><span>Nuevo</span></span>' : ''}<img src="${fotoCard(f)}" alt="${n}" width="800" height="1067" loading="lazy"><b>${n}</b></button>`).join('');
+grid.innerHTML = P.map(([f, n, c]) => `<button class="card" data-tilt data-c="${c}" data-f="${f}" data-n="${n}">${esNuevo(f) ? '<span class="nuevo" aria-hidden="true"><span>Nuevo</span></span>' : ''}<img src="${fotoCard(f)}" alt="${n}"${DYN[f]?.img ? ' class="p34"' : ''} width="800" height="1067" loading="lazy"><b>${n}</b></button>`).join('');
 grid.addEventListener('click', e => { const c = e.target.closest('.card'); c && abrir(c.dataset.f, c.dataset.n); });
 
 // ── Filtros: categoría + tipo de flor + color + buscador (se combinan entre sí)
