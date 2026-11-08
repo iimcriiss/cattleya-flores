@@ -5,34 +5,214 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
-<title>Reseñas · Cattleya</title>
+<meta name="theme-color" content="#1d0f14">
+<title>Panel · Cattleya</title>
+<link rel="icon" href="img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
-  body{margin:0;font:16px/1.4 system-ui,sans-serif;background:#FDF0EC;color:#3a2620;padding:20px}
-  main{max-width:760px;margin:0 auto}
-  h1{font-size:1.5rem;margin:0 0 16px}
-  input,button{font:inherit;padding:10px 14px;border-radius:12px;border:1.5px solid #3a2620}
-  button{cursor:pointer;background:#fff}
-  .ok{background:#3a2620;color:#fff}
-  .del{border-color:#c0392b;color:#c0392b}
-  .card{display:flex;gap:14px;background:#fff;border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 4px 14px -8px rgba(90,40,25,.4)}
-  .card img{width:96px;height:128px;object-fit:cover;border-radius:10px;flex:none}
-  .card p{margin:6px 0}
-  .tag{font-size:.8rem;padding:2px 10px;border-radius:99px;background:#ffe3a3}
-  .tag.pub{background:#c9f0d3}
-  .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  #msg{color:#c0392b;min-height:1.4em}
+  :root{
+    --bg:#1d0f14;--card:#2a161c;--card2:#23121a;--field:#1a0d12;
+    --line:rgba(255,255,255,.09);--txt:#fbeaf0;--soft:#c9a9b5;
+    --acc1:#e8497f;--acc2:#bf2352;--ok:#79e0a0;--bad:#ff8a8a
+  }
+  *{box-sizing:border-box}
+  html{color-scheme:dark}
+  body{margin:0;min-height:100vh;font:16px/1.45 Figtree,system-ui,sans-serif;color:var(--txt);background:var(--bg);position:relative;overflow-x:hidden}
+  /* Fondo: manchas rosadas difuminadas */
+  body::before{content:"";position:fixed;inset:-10%;z-index:-1;pointer-events:none;
+    background:
+      radial-gradient(40% 35% at 15% 20%,rgba(232,73,127,.28),transparent 70%),
+      radial-gradient(35% 30% at 85% 15%,rgba(160,90,220,.20),transparent 70%),
+      radial-gradient(45% 40% at 75% 85%,rgba(232,73,127,.22),transparent 70%),
+      radial-gradient(30% 30% at 10% 90%,rgba(247,185,40,.10),transparent 70%);
+    filter:blur(30px)}
+  main{max-width:1100px;margin:0 auto;padding:24px 18px 48px}
+
+  h1,h2{margin:0;letter-spacing:-.02em}
+  input,button,select,textarea{font:inherit;color:var(--txt)}
+  input,textarea,select{width:100%;padding:13px 16px;border-radius:14px;border:1px solid var(--line);background:var(--field);outline:none;transition:border-color .15s,box-shadow .15s}
+  input::placeholder,textarea::placeholder{color:#8f7280}
+  input:focus,textarea:focus,select:focus{border-color:var(--acc1);box-shadow:0 0 0 3px rgba(232,73,127,.22)}
+  input[type=file]{padding:9px 12px;font-size:.9rem}
+  input[type=file]::file-selector-button{margin-right:10px;padding:7px 12px;border:0;border-radius:10px;background:rgba(255,255,255,.1);color:var(--txt);font:inherit;cursor:pointer}
+  textarea{resize:vertical;min-height:90px}
+  button{cursor:pointer;padding:10px 16px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);font-weight:600;transition:background .15s,transform .05s}
+  button:hover{background:rgba(255,255,255,.12)}
+  button:active{transform:translateY(1px)}
+  button:disabled{opacity:.5;cursor:default}
+  button:focus-visible{outline:2px solid var(--acc1);outline-offset:2px}
+  .ok{border:0;color:#fff;background:linear-gradient(135deg,var(--acc1),var(--acc2));box-shadow:0 8px 22px -8px rgba(232,73,127,.7)}
+  .ok:hover{background:linear-gradient(135deg,#f05a8e,#cc2a5b)}
+  .del{color:var(--bad);border-color:rgba(255,138,138,.4);background:transparent}
+  .del:hover{background:rgba(255,138,138,.12)}
+  .sm{padding:7px 12px;font-size:.88rem;border-radius:10px}
+
+  /* ── Entrada (login) */
+  .gate{display:grid;place-items:center;min-height:calc(100vh - 72px)}
+  .gate-card{width:min(100%,420px);padding:34px 28px 28px;text-align:center;border-radius:28px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02)),var(--card);
+    border:1px solid var(--line);box-shadow:0 30px 70px -20px rgba(0,0,0,.7)}
+  .gate-ic{display:block;width:100px;height:100px;object-fit:contain;margin:0 auto 12px;filter:drop-shadow(0 6px 14px rgba(232,73,127,.45))}
+  .gate h1{font-size:2.1rem;font-weight:800}
+  .gate p.sub{margin:8px 0 22px;color:var(--soft)}
+  #login{display:grid;gap:14px}
+  #login button{padding:15px;font-size:1.05rem;font-weight:800;border-radius:16px}
+  #login[hidden]{display:none}
+  #msg{min-height:1.4em;margin:14px 0 0;color:var(--bad);font-weight:600}
+  /* Ya dentro: se esconde la tarjeta de entrada */
+  body:has(#app:not([hidden])) .gate{display:none}
+
+  /* ── Panel */
+  #app[hidden]{display:none}
+  .top{display:flex;align-items:center;gap:12px;margin:0 0 18px}
+  .top .em{width:52px;height:52px;object-fit:contain}
+  .top h1{font-size:1.6rem;font-weight:800}
+  .top .sp{flex:1}
+  .tabs{display:flex;gap:6px;margin:0 0 20px;padding:5px;width:max-content;max-width:100%;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+  .tabs button{border:0;background:transparent;border-radius:99px;padding:9px 20px;color:var(--soft)}
+  .tabs button:hover{color:var(--txt);background:rgba(255,255,255,.06)}
+  .tabs button[aria-selected=true]{color:#fff;background:linear-gradient(135deg,var(--acc1),var(--acc2));box-shadow:0 6px 18px -8px rgba(232,73,127,.8)}
+  .num{font-size:.8rem;opacity:.85;margin-left:6px}
+  section[hidden]{display:none}
+
+  .card,.box{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 18px 40px -22px rgba(0,0,0,.7)}
+  .card{display:flex;gap:16px;padding:16px;margin:0 0 12px}
+  .card img{width:96px;height:128px;object-fit:cover;border-radius:12px;flex:none;background:var(--field)}
+  .card p{margin:8px 0;color:var(--txt)}
+  .card b{color:var(--soft);font-weight:600}
+  .card>div{min-width:0}
+  .tag{display:inline-block;font-size:.78rem;font-weight:700;padding:3px 11px;border-radius:99px;background:rgba(247,185,40,.18);color:#ffd36e;margin-bottom:6px}
+  .tag.pub{background:rgba(121,224,160,.16);color:var(--ok)}
+  .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  #lista{color:var(--soft)}
+
+  /* Flores: lista a la izquierda, formulario a la derecha */
+  .fl{display:grid;grid-template-columns:1.2fr 1fr;gap:18px;align-items:start}
+  .box{padding:20px}
+  .box h2{font-size:1.15rem;margin:0 0 14px}
+  .form{position:sticky;top:14px}
+  .fila{display:flex;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+  .fila:first-of-type{border-top:0;padding-top:0}
+  .fila img{width:52px;height:68px;object-fit:cover;border-radius:10px;flex:none;background:var(--field)}
+  .fila .info{flex:1;min-width:0}
+  .fila .info b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .fila .info small{color:var(--soft)}
+  .fila .acts{margin:0;flex:none}
+  .vacia{color:var(--soft);padding:6px 0}
+
+  .fld{display:block;margin:0 0 16px;font-weight:700;font-size:.9rem;color:var(--txt)}
+  .fld>*{margin-top:7px;font-weight:400}
+  .fld small{display:block;color:var(--soft);margin-top:6px;font-size:.8rem}
+  .foto{display:flex;gap:14px;align-items:center}
+  .foto>div:last-child{flex:1;min-width:0}
+  .foto .vista{width:96px;height:128px;border-radius:14px;border:2px dashed rgba(255,255,255,.18);background:var(--field) center/cover no-repeat;flex:none;display:grid;place-items:center;font-size:.8rem;color:var(--soft);text-align:center;padding:4px}
+  .foto .vista.on{border:2px solid var(--acc1);color:transparent}
+  .cols{display:flex;gap:8px;flex-wrap:wrap}
+  .cols label{display:flex;align-items:center;gap:7px;font-weight:500;border:1px solid var(--line);border-radius:99px;padding:6px 13px 6px 9px;cursor:pointer;font-size:.9rem;background:var(--field)}
+  .cols label:has(input:checked){border-color:var(--acc1);background:rgba(232,73,127,.16)}
+  .cols input{width:auto;margin:0;padding:0;accent-color:var(--acc1)}
+  .cols i{width:14px;height:14px;border-radius:50%;border:1px solid rgba(255,255,255,.35);flex:none}
+  .sw{display:flex;align-items:center;gap:10px;font-weight:700;margin:0 0 18px;cursor:pointer}
+  .sw input{width:auto;padding:0;margin:0;transform:scale(1.25);accent-color:var(--acc1)}
+  .fbtn{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+  .fbtn .ok{padding:12px 22px}
+  #fmsg{min-height:1.4em;margin:0 0 10px;color:var(--bad);font-weight:600}
+  #fmsg.bien{color:var(--ok)}
+
+  @media(max-width:820px){
+    .fl{grid-template-columns:1fr}.form{position:static}
+    .fila{flex-wrap:wrap}.fila .acts{width:100%}
+    .card img{width:76px;height:102px}
+  }
+  @media(max-width:480px){
+    main{padding:16px 12px 40px}
+    .gate-card{padding:28px 20px 22px;border-radius:24px}
+    .foto{flex-direction:column;align-items:stretch}
+    .tabs{width:100%}.tabs button{flex:1;padding-inline:10px}
+  }
 </style>
 </head>
 <body>
 <main>
-  <h1>Reseñas de Cattleya</h1>
-  <form id="login">
-    <input id="key" type="password" placeholder="Clave de administración" autocomplete="current-password" required>
-    <button class="ok" type="submit">Entrar</button>
-  </form>
-  <p id="msg"></p>
-  <div id="lista"></div>
+  <div class="gate">
+    <div class="gate-card">
+      
+      <img class="gate-ic" src="img/flor-admin.png" alt="" width="72" height="72">
+      <p class="sub">Escribe tu clave para administrar las funciones de la página.</p>
+      <form id="login">
+        <input id="key" type="password" placeholder="Clave" autocomplete="current-password" required>
+        <button class="ok" type="submit">Entrar</button>
+      </form>
+      <p id="msg" role="alert"></p>
+    </div>
+  </div>
+
+  <div id="app" hidden>
+    <div class="top"><span class="em" aria-hidden="true"></span><h1>Panel de Cattleya</h1></div>
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" data-tab="res" aria-selected="true">Reseñas</button>
+      <button type="button" role="tab" data-tab="flo" aria-selected="false">Flores<span class="num" id="nflo"></span></button>
+    </div>
+
+    <section id="t-res"><div id="lista"></div></section>
+
+    <section id="t-flo" hidden>
+      <div class="fl">
+        <div class="box">
+          <h2>Flores que has subido</h2>
+          <div id="flores"></div>
+        </div>
+
+        <form class="box form" id="ff" autocomplete="off">
+          <h2 id="ftitulo">Nueva flor</h2>
+
+          <div class="fld">Foto
+            <div class="foto">
+              <div class="vista" id="vista">Sin foto</div>
+              <div>
+                <input type="file" id="foto" accept="image/*">
+                <small>Foto vertical, de una sola flor o ramo. Se achica sola para que la página cargue rápido.</small>
+              </div>
+            </div>
+          </div>
+
+          <label class="fld">Nombre
+            <input id="fn" maxlength="60" placeholder="Ej: Ramo de Rosas Rojas" required>
+          </label>
+
+          <label class="fld">Descripción
+            <textarea id="fd" maxlength="400" placeholder="Cuenta cómo es: colores, tamaño, detalles…"></textarea>
+            <small>Sale en la ventana cuando alguien toca la flor.</small>
+          </label>
+
+          <label class="fld">Categoría
+            <input id="fc" maxlength="30" list="cats" value="Ramos" required>
+            <datalist id="cats"><option value="Ramos"><option value="Macetas"><option value="Decoración"></datalist>
+            <small>Elige una o escribe una nueva (se crea el filtro solo).</small>
+          </label>
+
+          <label class="fld">Tipo de flor (opcional)
+            <input id="ft" maxlength="40" placeholder="Ej: Rosa, Girasol Margarita">
+            <small>Sirve para el filtro «Flor». Si son varias, sepáralas con espacio.</small>
+          </label>
+
+          <div class="fld">Colores (opcional)
+            <div class="cols" id="fk"></div>
+          </div>
+
+          <label class="sw"><input type="checkbox" id="fok" checked> Visible en el catálogo</label>
+
+          <p id="fmsg" role="status"></p>
+          <div class="fbtn">
+            <button type="button" id="fcancel" hidden>Cancelar edición</button>
+            <button type="submit" class="ok" id="fsave">Guardar flor</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
 </main>
-<script src="js/admin-panel.js"></script>
+<script src="js/admin-panel.js?v=2"></script>
 </body>
 </html>
