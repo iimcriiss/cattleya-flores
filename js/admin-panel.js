@@ -43,7 +43,7 @@ $('#salir').onclick = salir;
 const COLORES = { rojo: '#D62839', rosa: '#EE5C8C', amarillo: '#F7B928', azul: '#2F6FE0', morado: '#8D6BD8', blanco: '#FFFFFF' };
 const CATS = ['Ramos', 'Macetas', 'Decoración'];
 const PAGINA = 20;
-let FL = [], editItem = null, fotoNueva = null, estado = 'todas', mostrar = PAGINA;
+let FL = [], ORDEN = [], editItem = null, fotoNueva = null, estado = 'todas', mostrar = PAGINA;
 const norm = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 const clave = f => f.est ? 's-' + f.f : f.id;
 
@@ -65,7 +65,13 @@ function todas() {
     if (o.img) Object.assign(base, { img: o.img, th: o.th || o.img });
     return base;
   });
-  return [...FL.filter(x => !x.f), ...est];
+  const todo = [...FL.filter(x => !x.f), ...est];
+  if (!ORDEN.length) return todo;
+  // Mismo criterio que la página: nuevas sin orden primero, luego las ordenadas, y al final las de siempre sin orden
+  const pos = new Map(ORDEN.map((k, i) => [k, i]));
+  return [...todo.filter(f => !f.est && !pos.has(clave(f))),
+    ...todo.filter(f => pos.has(clave(f))).sort((a, b) => pos.get(clave(a)) - pos.get(clave(b))),
+    ...todo.filter(f => f.est && !pos.has(clave(f)))];
 }
 
 // Encuadre de la foto (3:4, igual que sale en el catálogo): se mueve y se acerca; devuelve { grande, mini } en WebP o null si cancela
@@ -128,8 +134,51 @@ async function cargarFlores() {
   const r = await apiF('GET');
   if (r.status === 401) return salir();
   if (!r.ok) { $('#flores').replaceChildren(h('p', { className: 'vacia', textContent: 'No se pudieron cargar las flores.' })); return; }
-  FL = await r.json();
+  const j = await r.json();
+  FL = Array.isArray(j) ? j : (j.flores || []); ORDEN = Array.isArray(j.orden) ? j.orden : [];
   pintarFlores();
+}
+
+// ───────── Orden de las flores
+let cola = Promise.resolve();
+function guardarOrden(nuevo) {
+  const previo = ORDEN; ORDEN = nuevo; pintarFlores();
+  cola = cola.then(() => apiF('PUT', { orden: nuevo })).then(r => {
+    if (r.status === 401) return salir();
+    if (!r.ok) throw new Error('x');
+    msgF('Orden guardado.', true);
+  }).catch(() => { alert('No se pudo guardar el orden. Intenta de nuevo.'); ORDEN = previo; pintarFlores(); });
+}
+// antes / despues: claves de las filas visibles en su orden anterior y nuevo. Las flores que no se ven (filtro o «Ver más») conservan su sitio.
+function reordenar(antes, despues) {
+  if (antes.join() === despues.join()) return;
+  const full = todas().map(clave), nuevo = full.slice();
+  antes.forEach((k, i) => { const p = full.indexOf(k); if (p >= 0) nuevo[p] = despues[i]; });
+  guardarOrden(nuevo);
+}
+function arrastrar(e, row) {
+  e.preventDefault();
+  const cont = row.parentElement, antes = [...cont.querySelectorAll('.fila')].map(r => r.dataset.k);
+  const mid = el => { const r = el.getBoundingClientRect(); return r.top + r.height / 2; };
+  let y = e.clientY, raf = 0;
+  row.classList.add('mov');
+  try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
+  const paso = () => {
+    if (y < 70) scrollBy({ top: -12, behavior: 'instant' }); else if (y > innerHeight - 70) scrollBy({ top: 12, behavior: 'instant' });
+    let p = row.previousElementSibling, n = row.nextElementSibling;
+    // se mueven las otras filas (no la que arrastras) para no perder el agarre
+    while (p && p.classList.contains('fila') && y < mid(p)) { row.after(p); p = row.previousElementSibling; }
+    while (n && n.classList.contains('fila') && y > mid(n)) { cont.insertBefore(n, row); n = row.nextElementSibling; }
+    raf = requestAnimationFrame(paso);
+  };
+  const mover = ev => { y = ev.clientY; };
+  const fin = () => {
+    cancelAnimationFrame(raf); row.classList.remove('mov');
+    removeEventListener('pointermove', mover); removeEventListener('pointerup', fin); removeEventListener('pointercancel', fin);
+    reordenar(antes, [...cont.querySelectorAll('.fila')].map(r => r.dataset.k));
+  };
+  addEventListener('pointermove', mover); addEventListener('pointerup', fin); addEventListener('pointercancel', fin);
+  paso();
 }
 
 const categorias = () => [...new Set([...CATS, ...todas().map(f => f.c)])];
@@ -153,7 +202,8 @@ function pintarFlores() {
   const cont = $('#flores'); cont.replaceChildren();
   if (!lista.length) cont.append(h('p', { className: 'vacia', textContent: todo.length ? 'No hay flores con ese filtro.' : 'Todavía no hay flores. Toca «+ Nueva flor» para empezar.' }));
   const sele = editItem && clave(editItem);
-  for (const f of lista.slice(0, mostrar)) {
+  const vis = lista.slice(0, mostrar);
+  for (const f of vis) {
     const tg = h('input', { type: 'checkbox', checked: !!f.ok, title: f.ok ? 'Visible: toca para ocultar' : 'Oculta: toca para mostrar' });
     tg.setAttribute('aria-label', 'Visible en el catálogo: ' + f.n);
     tg.onchange = async () => {
@@ -163,10 +213,23 @@ function pintarFlores() {
       await cargarFlores();
     };
     const ed = h('button', { type: 'button', className: 'sm', textContent: 'Editar' }); ed.onclick = () => editar(f);
-    cont.append(h('div', { className: 'fila' + (f.ok ? '' : ' off') + (clave(f) === sele ? ' sel' : '') },
+    const i = vis.indexOf(f), claves = vis.map(clave);
+    const asa = h('button', { type: 'button', className: 'asa', textContent: '⋮⋮', title: 'Arrastra para cambiar el orden' });
+    asa.setAttribute('aria-label', 'Arrastrar para ordenar: ' + f.n);
+    const fila = h('div', { className: 'fila' + (f.ok ? '' : ' off') + (clave(f) === sele ? ' sel' : '') }, asa);
+    asa.onpointerdown = e => { if (!e.button) arrastrar(e, fila); };
+    const flecha = (txt, d, tit) => {
+      const b = h('button', { type: 'button', className: 'sm fle', textContent: txt, title: tit, disabled: i + d < 0 || i + d >= vis.length });
+      b.setAttribute('aria-label', tit + ': ' + f.n);
+      b.onclick = () => { const x = claves.slice(); [x[i], x[i + d]] = [x[i + d], x[i]]; reordenar(claves, x); };
+      return b;
+    };
+    fila.dataset.k = clave(f);
+    fila.append(
       h('img', { src: f.th || f.img, alt: '', loading: 'lazy' }),
       h('div', { className: 'info' }, h('b', { textContent: f.n }), h('small', { textContent: f.c + (f.t ? ' · ' + f.t : '') + (f.ok ? '' : ' · Oculta') })),
-      h('div', { className: 'acts' }, h('label', { className: 'tg' }, tg, h('i')), ed)));
+      h('div', { className: 'acts' }, flecha('▲', -1, 'Subir'), flecha('▼', 1, 'Bajar'), h('label', { className: 'tg' }, tg, h('i')), ed));
+    cont.append(fila);
   }
   const mas = $('#mas');
   mas.hidden = lista.length <= PAGINA;

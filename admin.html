@@ -57,6 +57,7 @@
   body:has(#app:not([hidden])) .gate{display:none}
 
   /* ── Panel */
+  
   #app[hidden]{display:none}
   .top{display:flex;align-items:center;gap:12px;margin:0 0 18px}
   .top img{width:48px;height:48px;object-fit:contain}
@@ -102,6 +103,14 @@
   .fila .info small{color:var(--mut)}
   .fila .acts{margin:0;flex:none;align-items:center}
   .vacia{color:var(--mut);padding:6px 0}
+  /* Orden de las flores: asa para arrastrar y flechas */
+  .ayuda{margin:0 0 6px;color:var(--mut);font-size:.88rem}
+  .fila .asa{flex:none;width:30px;padding:10px 0;border:0;background:transparent;color:#B79A90;font-size:1.15rem;line-height:1;letter-spacing:-2px;cursor:grab;touch-action:none;user-select:none;border-radius:8px}
+  .fila .asa:hover{background:var(--field);color:var(--pink2)}
+  .fila.mov{background:#FFF3F0;box-shadow:0 8px 22px -10px rgba(90,40,25,.45);border-radius:14px;position:relative;z-index:2}
+  .fila.mov .asa{cursor:grabbing}
+  .fila .fle{padding:6px 10px;min-width:34px}
+  .fila .fle:disabled{opacity:.35;cursor:default}
 
   /* Interruptor (visible / oculta) */
   .tg{position:relative;display:inline-block;width:44px;height:26px;flex:none;cursor:pointer}
@@ -210,6 +219,7 @@
               <select id="fcat" aria-label="Filtrar por categoría"><option value="">Todas las categorías</option></select>
             </div>
           </div>
+          <p class="ayuda">Para ordenar: arrastra <b>⋮⋮</b> o usa ▲ ▼. Así mismo se verán en la tienda (las flores nuevas salen primero).</p>
           <div id="flores"></div>
           <div class="mas" id="mas" hidden><span id="mastxt"></span><button type="button" class="sm" id="masbtn">Ver más</button></div>
         </div>

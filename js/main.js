@@ -20,12 +20,12 @@ const escH = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;
   const cap = w => w[0].toUpperCase() + w.slice(1).toLowerCase();
   const cat = c => String(c || '').replace(/[^\p{L}\p{N} ]/gu, '').trim() || 'Ramos';
   const info = (x, img) => ({ img: ruta(x.img) ? x.img : img, th: ruta(x.th) ? x.th : (ruta(x.img) ? x.img : ''), d: String(x.d || ''),
-    t: String(x.t || '').split(/\s+/).filter(Boolean).map(cap).join(' '), k: String(x.k || '') });
+    t: String(x.t || '').split(/\s+/).filter(Boolean).map(cap).join(' '), k: String(x.k || ''), ts: +x.ts || 0 });
   let lista = [];
   if (!location.search.includes('demo')) {
     try { const r = await fetch('/api/flores', { signal: AbortSignal.timeout(3000) }); if (r.ok) lista = await r.json(); } catch {}
   }
-  const nuevas = [];
+  const nuevas = [], CLAVE = {}; // CLAVE: foto de una flor nueva → su id (para el orden elegido en el panel)
   for (const x of lista) {
     if (!x) continue;
     if (x.f) {                                   // una flor de siempre con cambios
@@ -33,11 +33,20 @@ const escH = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;
       if (!x.ok) { P.splice(i, 1); continue; }   // oculta
       if (x.n) { P[i] = [x.f, escH(x.n), cat(x.c)]; DYN[x.f] = info(x, ''); }
     } else if (x.ok && ruta(x.img) && x.n) {      // una flor nueva
-      DYN[x.img] = info(x, x.img);
+      DYN[x.img] = info(x, x.img); CLAVE[x.img] = x.id;
       nuevas.push([x.img, escH(x.n), cat(x.c)]);
     }
   }
   P.unshift(...nuevas);
+  // Orden elegido en el panel: las flores nuevas sin orden van primero, luego las ordenadas, y al final las de siempre que no estén en la lista
+  const orden = (lista.find(x => x && Array.isArray(x.orden)) || {}).orden;
+  if (orden) {
+    const pos = new Map(orden.map((k, i) => [k, i])), clave = p => CLAVE[p[0]] || 's-' + p[0];
+    const nuevasSin = P.filter(p => CLAVE[p[0]] && !pos.has(clave(p)));
+    const ordenadas = P.filter(p => pos.has(clave(p))).sort((a, b) => pos.get(clave(a)) - pos.get(clave(b)));
+    const otras = P.filter(p => !pos.has(clave(p)) && !CLAVE[p[0]]);
+    P.splice(0, P.length, ...nuevasSin, ...ordenadas, ...otras);
+  }
 }
 const F = ['bouquet-de-lirios','bouquet-de-lilys-y-tulipanes','bouquet-de-girasoles'].map(f => P.find(p => p[0] === f)).filter(Boolean);
 // ── Diálogo de producto (el mensaje de WhatsApp lleva el nombre)
@@ -92,7 +101,9 @@ acc.addEventListener('click', e => {
 
 // ── Catálogo: tarjetas + filtros con animación FLIP
 const grid = $('#grid');
-grid.innerHTML = P.map(([f, n, c]) => `<button class="card" data-tilt data-c="${c}" data-f="${f}" data-n="${n}"><img src="${fotoCard(f)}" alt="${n}" width="800" height="1067" loading="lazy"><b>${n}</b></button>`).join('');
+const NUEVO_DIAS = 30; // cuántos días muestra la cinta «Nuevo» una flor recién subida desde el panel
+const esNuevo = f => DYN[f]?.ts && Date.now() - DYN[f].ts < NUEVO_DIAS * 864e5;
+grid.innerHTML = P.map(([f, n, c]) => `<button class="card" data-tilt data-c="${c}" data-f="${f}" data-n="${n}">${esNuevo(f) ? '<span class="nuevo" aria-hidden="true"><span>Nuevo</span></span>' : ''}<img src="${fotoCard(f)}" alt="${n}" width="800" height="1067" loading="lazy"><b>${n}</b></button>`).join('');
 grid.addEventListener('click', e => { const c = e.target.closest('.card'); c && abrir(c.dataset.f, c.dataset.n); });
 
 // ── Filtros: categoría + tipo de flor + color + buscador (se combinan entre sí)

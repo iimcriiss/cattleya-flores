@@ -1,5 +1,5 @@
 // Panel privado: subir, editar, ocultar y borrar flores del catálogo. Necesita el secreto ADMIN_KEY.
-// Usa: RESENAS (KV, clave "flores") y FOTOS (R2, carpeta flores/).
+// Usa: RESENAS (KV, claves "flores" y "orden") y FOTOS (R2, carpeta flores/).
 const MAX_FOTO = 2 * 1024 * 1024; // 2 MB por imagen (el panel ya las achica)
 const MAX_FLORES = 300;
 const COLORES = ['rojo', 'rosa', 'amarillo', 'azul', 'morado', 'blanco'];
@@ -58,11 +58,27 @@ async function refrescar(request, context) {
 }
 const mismoOrigen = (request) => { const o = request.headers.get('Origin'); return !o || o === new URL(request.url).origin; };
 
-// GET → todas las flores (también las ocultas)
+// GET → todas las flores (también las ocultas) y el orden guardado: { flores, orden }
 export async function onRequestGet({ request, env }) {
   const bloqueo = await guardia(request, env);
   if (bloqueo) return bloqueo;
-  return json(await leer(env));
+  let orden = [];
+  try { const o = await env.RESENAS.get('orden', 'json'); if (Array.isArray(o)) orden = o; } catch {}
+  return json({ flores: await leer(env), orden });
+}
+
+// PUT { orden: [clave, clave, ...] } → guarda el orden del catálogo (clave = id de la flor nueva, o "s-" + archivo en las de siempre)
+export async function onRequestPut(context) {
+  const { request, env } = context;
+  if (!mismoOrigen(request)) return json({ error: 'Origen no permitido' }, 403);
+  const bloqueo = await guardia(request, env);
+  if (bloqueo) return bloqueo;
+  let b; try { b = await request.json(); } catch { return json({ error: 'Datos inválidos' }, 400); }
+  if (!Array.isArray(b.orden) || b.orden.length > 700) return json({ error: 'Orden inválido' }, 400);
+  const orden = [...new Set(b.orden.map(String))].filter((k) => /^[A-Za-z0-9_-]{1,100}$/.test(k));
+  try { await env.RESENAS.put('orden', JSON.stringify(orden)); } catch { return json({ error: 'No se pudo guardar el orden. Intenta de nuevo.' }, 500); }
+  await refrescar(request, context);
+  return json({ ok: true });
 }
 
 // POST (multipart) → crear o editar. Campos: id? o f? (flor de siempre), n, d, c, t, k (colores separados por coma), ok ('1'), foto?, th?
