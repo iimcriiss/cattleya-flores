@@ -134,6 +134,20 @@
   #fmsg{min-height:1.4em;margin:0 0 10px;color:var(--bad);font-weight:700}
   #fmsg.bien{color:var(--ok)}
 
+  /* Recortar la foto */
+  #rec{border:0;padding:0;border-radius:24px;background:var(--card);color:var(--ink);box-shadow:0 30px 70px -20px rgba(60,25,15,.5);max-width:94vw}
+  #rec::backdrop{background:rgba(58,38,34,.55)}
+  .rec-box{padding:22px 22px 20px;text-align:center}
+  .rec-box h2{font-size:1.3rem}
+  .rec-s{margin:6px 0 14px;color:var(--mut);font-size:.9rem}
+  .rec-vp{position:relative;width:min(330px,76vw);aspect-ratio:3/4;margin:0 auto 14px;overflow:hidden;border-radius:16px;border:2px solid var(--pink);background:#EFE3DE;touch-action:none;cursor:grab;user-select:none}
+  .rec-vp:active{cursor:grabbing}
+  .rec-vp canvas{position:absolute;left:0;top:0;max-width:none;transform-origin:0 0;pointer-events:none}
+  .rec-vp::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent calc(33.3% - .5px),rgba(255,255,255,.55) 33.3%,transparent calc(33.3% + .5px),transparent calc(66.6% - .5px),rgba(255,255,255,.55) 66.6%,transparent calc(66.6% + .5px)),linear-gradient(transparent calc(33.3% - .5px),rgba(255,255,255,.55) 33.3%,transparent calc(33.3% + .5px),transparent calc(66.6% - .5px),rgba(255,255,255,.55) 66.6%,transparent calc(66.6% + .5px))}
+  .rec-z{display:flex;align-items:center;gap:12px;margin:0 auto 18px;width:min(330px,76vw);font-weight:700;font-size:.9rem}
+  .rec-z input{padding:0;border:0;background:transparent;accent-color:var(--pink);box-shadow:none}
+  #rec .fbtn{justify-content:center}
+
   @media(max-width:860px){
     .fl{grid-template-columns:1fr}.form{position:static}
     .fila{flex-wrap:wrap}.fila .acts{width:100%}
@@ -208,7 +222,8 @@
               <div class="vista" id="vista">Sin foto</div>
               <div>
                 <input type="file" id="foto" accept="image/*">
-                <small>Foto vertical, de una sola flor o ramo. Se achica sola para que la página cargue rápido. Al editar, si no eliges otra se queda la actual.</small>
+                <button type="button" class="sm" id="recortar" hidden style="margin-top:8px">Volver a encuadrar</button>
+                <small>Al elegir la foto podrás encuadrarla: mover y acercar. Se achica sola para que la página cargue rápido. Al editar, si no eliges otra se queda la actual.</small>
               </div>
             </div>
           </div>
@@ -254,7 +269,19 @@
     </section>
   </div>
 </main>
+<dialog id="rec" aria-label="Encuadrar la foto">
+  <div class="rec-box">
+    <h2>Encuadra tu foto</h2>
+    <p class="rec-s">Arrastra para mover y usa el control para acercar. Así saldrá en la página.</p>
+    <div class="rec-vp" id="recvp"><canvas id="reccv"></canvas></div>
+    <label class="rec-z">Acercar <input type="range" id="recz" min="1" max="4" step="0.01" value="1"></label>
+    <div class="fbtn">
+      <button type="button" id="reccan">Cancelar</button>
+      <button type="button" class="ok" id="recok">Usar esta foto</button>
+    </div>
+  </div>
+</dialog>
 <script src="js/catalogo.js?v=1"></script>
-<script src="js/admin-panel.js?v=4"></script>
+<script src="js/admin-panel.js?v=5"></script>
 </body>
 </html>

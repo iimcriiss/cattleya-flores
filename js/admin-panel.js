@@ -68,15 +68,60 @@ function todas() {
   return [...FL.filter(x => !x.f), ...est];
 }
 
-// Achica la foto en el navegador (así se sube rápido y la página carga liviana). Devuelve un Blob WebP.
-async function reducir(file, maxW, maxH, q) {
-  const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
-  const esc = Math.min(1, maxW / bmp.width, maxH / bmp.height);
-  const cv = document.createElement('canvas');
-  cv.width = Math.max(1, Math.round(bmp.width * esc)); cv.height = Math.max(1, Math.round(bmp.height * esc));
-  cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
-  bmp.close?.();
-  return new Promise((ok, no) => cv.toBlob(b => b ? ok(b) : no(new Error('No se pudo procesar la foto')), 'image/webp', q));
+// Encuadre de la foto (3:4, igual que sale en el catálogo): se mueve y se acerca; devuelve { grande, mini } en WebP o null si cancela
+function recortar(file) {
+  return new Promise(async fin => {
+    const dlg = $('#rec'), vp = $('#recvp'), cv = $('#reccv'), zr = $('#recz');
+    let bmp;
+    try { bmp = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+    catch { msgF('No pude leer esa foto. Prueba con una JPG o PNG.'); return fin(null); }
+    // Copia liviana para mostrar en pantalla; el recorte final se saca de la foto original (sin perder calidad)
+    const r = Math.min(1, 1400 / Math.max(bmp.width, bmp.height)), nw = Math.round(bmp.width * r), nh = Math.round(bmp.height * r);
+    cv.width = nw; cv.height = nh; cv.getContext('2d').drawImage(bmp, 0, 0, nw, nh);
+    zr.value = 1; dlg.showModal();
+
+    let W = 0, H = 0, s0 = 1, z = 1, ox = 0, oy = 0; // z = 1: la foto justo cubre el marco
+    const poner = () => {
+      const s = s0 * z;
+      ox = Math.min(0, Math.max(W - nw * s, ox)); oy = Math.min(0, Math.max(H - nh * s, oy));
+      cv.style.width = nw * s + 'px'; cv.style.height = nh * s + 'px'; cv.style.transform = `translate(${ox}px,${oy}px)`; zr.value = z;
+    };
+    const zoom = (nz, px, py) => { // acerca manteniendo quieto el punto (px, py)
+      nz = Math.min(4, Math.max(1, nz));
+      const s = s0 * z, cx = (px - ox) / s, cy = (py - oy) / s;
+      z = nz; ox = px - cx * s0 * z; oy = py - cy * s0 * z; poner();
+    };
+    const b0 = vp.getBoundingClientRect(); W = b0.width; H = b0.height; s0 = Math.max(W / nw, H / nh);
+    ox = (W - nw * s0) / 2; oy = (H - nh * s0) / 2; poner();
+
+    const pts = new Map(); let ult = null;
+    const dist = () => { const [a, b] = [...pts.values()]; return Math.hypot(a.x - b.x, a.y - b.y); };
+    const medio = () => { const [a, b] = [...pts.values()]; return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; };
+    vp.onpointerdown = e => { vp.setPointerCapture(e.pointerId); pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); ult = pts.size === 2 ? { d: dist(), m: medio() } : null; };
+    vp.onpointermove = e => {
+      const prev = pts.get(e.pointerId); if (!prev) return;
+      const cur = { x: e.clientX, y: e.clientY }; pts.set(e.pointerId, cur);
+      if (pts.size === 1) { ox += cur.x - prev.x; oy += cur.y - prev.y; poner(); }
+      else if (pts.size === 2 && ult) { // dos dedos: mover y acercar
+        const d = dist(), m = medio(), b = vp.getBoundingClientRect();
+        ox += m.x - ult.m.x; oy += m.y - ult.m.y; zoom(z * d / ult.d, m.x - b.left, m.y - b.top); ult = { d, m };
+      }
+    };
+    vp.onpointerup = vp.onpointercancel = e => { pts.delete(e.pointerId); ult = null; };
+    vp.onwheel = e => { e.preventDefault(); const b = vp.getBoundingClientRect(); zoom(z * Math.exp(-e.deltaY * .002), e.clientX - b.left, e.clientY - b.top); };
+    zr.oninput = () => zoom(parseFloat(zr.value), W / 2, H / 2);
+
+    const cerrar = res => { fin(res); bmp.close?.(); if (dlg.open) dlg.close(); };
+    dlg.onclose = () => fin(null);
+    $('#reccan').onclick = () => cerrar(null);
+    $('#recok').onclick = async () => {
+      const s = s0 * z / r;                                   // píxeles de pantalla por píxel de la foto original
+      const sw = W / s, sh = H / s, sx = Math.max(0, Math.min(-ox / s, bmp.width - sw)), sy = Math.max(0, Math.min(-oy / s, bmp.height - sh));
+      const sacar = (w, h, q) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(bmp, sx, sy, sw, sh, 0, 0, w, h); return new Promise((ok, no) => c.toBlob(b => b ? ok(b) : no(new Error('x')), 'image/webp', q)); };
+      try { const [grande, mini] = await Promise.all([sacar(900, 1200, .82), sacar(420, 560, .8)]); cerrar({ grande, mini }); }
+      catch { cerrar(null); msgF('No se pudo preparar la foto. Prueba con otra.'); }
+    };
+  });
 }
 
 async function cargarFlores() {
@@ -143,7 +188,7 @@ function limpiarForm() {
   $('#ff').reset(); $('#fc').value = 'Ramos'; $('#fok').checked = true;
   vista('');
   $('#ftitulo').textContent = 'Nueva flor'; $('#fsave').textContent = 'Guardar flor';
-  $('#fcancel').hidden = true; $('#fdel').hidden = true; nota(null); msgF('');
+  $('#fcancel').hidden = true; $('#fdel').hidden = true; nota(null); msgF(''); ultimo = null; btnRec();
   pintarFlores();
 }
 
@@ -157,7 +202,7 @@ function editar(f) {
   $('#fcancel').hidden = false;
   const borrable = !f.est || f.cambiada;                       // las de siempre solo se "restauran" si ya tienen cambios
   $('#fdel').hidden = !borrable; $('#fdel').textContent = f.est ? 'Restaurar original' : 'Eliminar flor';
-  nota(f); msgF('');
+  nota(f); msgF(''); ultimo = null; btnRec();
   pintarFlores();
   $('#ff').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -175,16 +220,21 @@ $('#estados').onclick = e => {
   refiltrar();
 };
 
-$('#foto').onchange = async e => {
-  const file = e.target.files[0]; fotoNueva = null;
-  if (!file) { vista(editItem ? (editItem.th || editItem.img) : ''); return; }
-  msgF('Preparando la foto…', true);
+let ultimo = null; // archivo elegido (para volver a encuadrar)
+const fotoActual = () => editItem ? (editItem.th || editItem.img) : '';
+function btnRec() { const b = $('#recortar'); b.hidden = !(fotoNueva || editItem); b.textContent = fotoNueva ? 'Volver a encuadrar' : 'Encuadrar la foto actual'; }
+async function encuadrar(file) {
+  const res = await recortar(file);
+  if (res) { fotoNueva = res; ultimo = file; vista(URL.createObjectURL(res.mini)); msgF(''); }
+  else if (!fotoNueva) { $('#foto').value = ''; ultimo = null; vista(fotoActual()); }
+  btnRec();
+}
+$('#foto').onchange = e => { const file = e.target.files[0]; if (file) encuadrar(file); else { fotoNueva = null; ultimo = null; vista(fotoActual()); btnRec(); } };
+$('#recortar').onclick = async () => {
   try {
-    const [grande, mini] = await Promise.all([reducir(file, 900, 1200, .82), reducir(file, 420, 560, .8)]);
-    fotoNueva = { grande, mini };
-    vista(URL.createObjectURL(mini));
-    msgF('');
-  } catch { e.target.value = ''; vista(editItem ? (editItem.th || editItem.img) : ''); msgF('No pude leer esa foto. Prueba con una JPG o PNG.'); }
+    const file = ultimo || await (await fetch(editItem.img.startsWith('/') ? editItem.img : '/' + editItem.img)).blob();
+    await encuadrar(file);
+  } catch { msgF('No pude abrir la foto actual.'); }
 };
 
 $('#fdel').onclick = async () => {
