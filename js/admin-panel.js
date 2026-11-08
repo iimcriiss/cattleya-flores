@@ -4,8 +4,8 @@ const api = (m, body) => fetch('/api/admin', { method: m, headers: { Authorizati
 
 async function cargar() {
   const r = await api('GET');
-  if (!r.ok) { $('#msg').textContent = 'Clave incorrecta'; sessionStorage.removeItem('ck'); $('#login').hidden = false; $('#lista').replaceChildren(); return; }
-  $('#msg').textContent = ''; $('#login').hidden = true;
+  if (!r.ok) { $('#msg').textContent = 'Clave incorrecta'; sessionStorage.removeItem('ck'); $('#login').hidden = false; $('#app').hidden = true; $('#lista').replaceChildren(); return; }
+  $('#msg').textContent = ''; $('#login').hidden = true; $('#app').hidden = false;
   const datos = await r.json();
   const cont = $('#lista'); cont.replaceChildren();
   if (!datos.length) cont.textContent = 'Todavía no hay reseñas.';
@@ -26,3 +26,10 @@ async function cargar() {
 }
 $('#login').onsubmit = e => { e.preventDefault(); KEY = $('#key').value.trim(); sessionStorage.setItem('ck', KEY); cargar(); };
 if (KEY) cargar();
+
+// Pestañas (la de Flores se oculta hasta que exista /api/flores)
+const tabFlo = document.querySelector('[data-tab=flo]'); if (tabFlo) tabFlo.hidden = true;
+document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
+  document.querySelectorAll('[data-tab]').forEach(x => x.setAttribute('aria-selected', x === b));
+  $('#t-res').hidden = b.dataset.tab !== 'res'; $('#t-flo').hidden = b.dataset.tab !== 'flo';
+});
