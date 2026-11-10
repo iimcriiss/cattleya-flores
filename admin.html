@@ -137,6 +137,13 @@
   .fbtn{display:flex;gap:10px;justify-content:flex-end;align-items:center;flex-wrap:wrap}
   .fbtn .ok{padding:12px 24px}
   .fbtn .del{border:0;padding:8px 4px;margin-right:auto;text-decoration:underline;background:transparent}
+  .iab{margin:-4px 0 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .iab small,.iamsg{color:var(--mut);font-size:.85rem}
+  .iamsg{min-height:1.3em;margin:6px 0 0}
+  .iamsg.mal{color:var(--bad);font-weight:700}
+  .iaout{min-height:140px;margin-top:6px}
+  .iaw{max-width:720px}
+  .iaw .fld{margin-bottom:14px}
   .nota{margin:0 0 12px;padding:10px 13px;border-radius:12px;background:#FFF3F0;color:var(--mut);font-size:.85rem}
   .mas{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px;padding-top:14px;border-top:1px solid var(--line);color:var(--mut);font-size:.88rem}
   #fmsg{min-height:1.4em;margin:0 0 10px;color:var(--bad);font-weight:700}
@@ -196,6 +203,7 @@
     <div class="tabs" role="tablist">
       <button type="button" role="tab" data-tab="res" aria-selected="true">Reseñas</button>
       <button type="button" role="tab" data-tab="flo" aria-selected="false">Flores<span class="num" id="nflo"></span></button>
+      <button type="button" role="tab" data-tab="ia" aria-selected="false">Textos con IA</button>
     </div>
 
     <section id="t-res"><div id="lista"></div></section>
@@ -245,6 +253,11 @@
             <textarea id="fd" maxlength="400" placeholder="Cuenta cómo es: colores, tamaño, detalles…"></textarea>
             <small>Sale en la ventana cuando alguien toca la flor.</small>
           </label>
+          <div class="iab">
+            <button type="button" class="sm" id="fdia">✨ Escribir con IA</button>
+            <small>Usa el nombre, la categoría y el tipo. Si ya escribiste algo en la descripción, la IA lo toma como pista.</small>
+          </div>
+          <p class="iamsg" id="fdiamsg" role="status"></p>
 
           <label class="fld">Categoría
             <input id="fc" maxlength="30" list="cats" value="Ramos" required>
@@ -276,6 +289,34 @@
         </form>
       </div>
     </section>
+
+    <section id="t-ia" hidden>
+      <div class="box iaw">
+        <h2 style="margin-bottom:6px">Textos con IA</h2>
+        <p class="nota">La IA solo sugiere un borrador. Revísalo y cámbialo antes de usarlo. No pegues teléfonos ni direcciones de clientes.</p>
+        <label class="fld">¿Qué necesitas?
+          <select id="iat">
+            <option value="instagram">Texto para Instagram</option>
+            <option value="respuesta">Respuesta a un cliente</option>
+          </select>
+        </label>
+        <label class="fld" id="iaw-n">Producto
+          <input id="ian" maxlength="80" placeholder="Ej: Ramo de Girasoles">
+        </label>
+        <label class="fld" id="iaw-m" hidden>Mensaje del cliente
+          <textarea id="iam" maxlength="600" placeholder="Pega aquí lo que te escribió el cliente"></textarea>
+        </label>
+        <label class="fld">Idea o detalle (opcional)
+          <input id="iao" maxlength="300" placeholder="Ej: para el Día de la Madre / dile que sí hacemos envíos">
+        </label>
+        <div class="fbtn"><button type="button" class="ok" id="iago">Escribir con IA</button></div>
+        <p class="iamsg" id="iamsg" role="status"></p>
+        <label class="fld">Borrador
+          <textarea id="iaout" class="iaout" maxlength="1000" placeholder="Aquí aparece el texto sugerido. Puedes editarlo."></textarea>
+        </label>
+        <div class="fbtn"><button type="button" class="sm" id="iacop">Copiar texto</button></div>
+      </div>
+    </section>
   </div>
 </main>
 <dialog id="rec" aria-label="Encuadrar la foto">
@@ -291,6 +332,6 @@
   </div>
 </dialog>
 <script src="js/catalogo.js?v=1"></script>
-<script src="js/admin-panel.js?v=6"></script>
+<script src="js/admin-panel.js?v=7"></script>
 </body>
 </html>
