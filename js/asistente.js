@@ -1,4 +1,4 @@
-// Asistente de chat de Cattleya v3 (botón flotante). Llama a /api/asistente.
+// Asistente de chat de Cattleya v4 (botón flotante). Llama a /api/asistente.
 (() => {
 'use strict';
 const WA = 'https://wa.me/584247167293?text=' + encodeURIComponent('Hola! Vengo de la página de Cattleya y quiero hacer una consulta 🌸');
@@ -17,7 +17,8 @@ st.textContent = `
 #cta .pn[hidden]{display:none}
 @keyframes ctaIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
 #cta .hd{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#E8638F,#C2406D);color:#fff;padding:14px 14px 14px 16px}
-#cta .av{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;font-size:20px;flex:none}
+#cta .av{width:40px;height:40px;border-radius:50%;background:#fff;display:grid;place-items:center;flex:none}
+#cta .av img{width:30px;height:30px;object-fit:contain;display:block}
 #cta .ht{flex:1;min-width:0}
 #cta .ht b{display:block;font-size:15px;line-height:1.2}
 #cta .ht span{font-size:12px;opacity:.92}
@@ -52,7 +53,7 @@ const fab = el('button', 'fab'); fab.type = 'button'; fab.setAttribute('aria-exp
 fab.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 20l1-4.2A8 8 0 1 1 21 12z"/></svg>';
 fab.appendChild(document.createTextNode('Pregúntanos'));
 const pn = el('div', 'pn'); pn.id = 'cta-pn'; pn.hidden = true; pn.setAttribute('role', 'dialog'); pn.setAttribute('aria-label', 'Asistente de Cattleya');
-const hd = el('div', 'hd'); const av = el('div', 'av', '🌸'); av.setAttribute('aria-hidden', 'true');
+const hd = el('div', 'hd'); const av = el('div', 'av'); av.setAttribute('aria-hidden', 'true'); const avi = el('img'); avi.src = '/img/flor-chat.webp'; avi.alt = ''; avi.width = 30; avi.height = 30; av.appendChild(avi);
 const ht = el('div', 'ht'); ht.append(el('b', '', 'Asistente de Cattleya'), el('span', '', 'Envíos, pagos y regalos'));
 const xb = el('button', 'x', '×'); xb.type = 'button'; xb.setAttribute('aria-label', 'Cerrar chat'); hd.append(av, ht, xb);
 const ms = el('div', 'ms'); ms.setAttribute('aria-live', 'polite');
