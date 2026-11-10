@@ -35,9 +35,51 @@ async function cargar() {
 // ───────── Pestañas
 document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
   document.querySelectorAll('[data-tab]').forEach(x => x.setAttribute('aria-selected', x === b));
-  $('#t-res').hidden = b.dataset.tab !== 'res'; $('#t-flo').hidden = b.dataset.tab !== 'flo';
+  $('#t-res').hidden = b.dataset.tab !== 'res'; $('#t-flo').hidden = b.dataset.tab !== 'flo'; $('#t-ia').hidden = b.dataset.tab !== 'ia';
 });
 $('#salir').onclick = salir;
+
+// ───────── IA (solo sugiere texto; tú lo revisas)
+async function pedirIA(datos) {
+  let r;
+  try { r = await fetch('/api/admin-ia', { method: 'POST', headers: { ...auth(), 'Content-Type': 'application/json' }, body: JSON.stringify(datos) }); }
+  catch { throw new Error('No hay conexión. Intenta otra vez.'); }
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || !d.t) throw new Error(d.error || 'La IA no pudo responder. Intenta otra vez.');
+  return d.t;
+}
+function aviso(sel, t, mal) { const m = $(sel); m.textContent = t || ''; m.classList.toggle('mal', !!mal); }
+
+// Descripción de una flor (en la pestaña Flores)
+$('#fdia').onclick = async () => {
+  const b = $('#fdia'), nombre = $('#fn').value.trim();
+  if (!nombre) return aviso('#fdiamsg', 'Primero escribe el nombre de la flor.', true);
+  b.disabled = true; aviso('#fdiamsg', 'Escribiendo…');
+  try {
+    $('#fd').value = await pedirIA({ tarea: 'descripcion', nombre, categoria: $('#fc').value.trim(), tipo: $('#ft').value.trim(), notas: $('#fd').value.trim().slice(0, 300) });
+    aviso('#fdiamsg', 'Listo. Revísala y cámbiala si quieres antes de guardar la flor.');
+  } catch (e) { aviso('#fdiamsg', e.message, true); }
+  b.disabled = false;
+};
+
+// Textos para Instagram y respuestas a clientes (pestaña Textos con IA)
+const iaModo = () => { const r = $('#iat').value === 'respuesta'; $('#iaw-n').hidden = r; $('#iaw-m').hidden = !r; };
+$('#iat').onchange = iaModo; iaModo();
+$('#iago').onclick = async () => {
+  const b = $('#iago'), resp = $('#iat').value === 'respuesta';
+  const datos = resp ? { tarea: 'respuesta', mensaje: $('#iam').value.trim(), notas: $('#iao').value.trim() }
+                     : { tarea: 'instagram', nombre: $('#ian').value.trim(), notas: $('#iao').value.trim() };
+  if (resp ? !datos.mensaje : !datos.nombre) return aviso('#iamsg', resp ? 'Pega el mensaje del cliente.' : 'Escribe el nombre del producto.', true);
+  b.disabled = true; aviso('#iamsg', 'Escribiendo…');
+  try { $('#iaout').value = await pedirIA(datos); aviso('#iamsg', 'Listo. Es un borrador: revísalo antes de usarlo.'); }
+  catch (e) { aviso('#iamsg', e.message, true); }
+  b.disabled = false;
+};
+$('#iacop').onclick = async () => {
+  const t = $('#iaout').value; if (!t) return aviso('#iamsg', 'Todavía no hay texto para copiar.', true);
+  try { await navigator.clipboard.writeText(t); aviso('#iamsg', 'Texto copiado.'); }
+  catch { $('#iaout').select(); aviso('#iamsg', 'Selecciónalo y cópialo con Ctrl + C.'); }
+};
 
 // ───────── Flores (las de siempre + las que subas)
 const COLORES = { rojo: '#D62839', rosa: '#EE5C8C', amarillo: '#F7B928', azul: '#2F6FE0', morado: '#8D6BD8', blanco: '#FFFFFF' };
