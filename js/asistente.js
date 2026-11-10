@@ -1,4 +1,4 @@
-// Asistente de chat de Cattleya v6 (botón flotante). Llama a /api/asistente.
+// Asistente de chat de Cattleya v7 (botón flotante). Llama a /api/asistente.
 (() => {
 'use strict';
 const WA = 'https://wa.me/584247167293?text=' + encodeURIComponent('Hola! Vengo de la página de Cattleya y quiero hacer una consulta 🌸');
@@ -11,9 +11,10 @@ st.textContent = `
 #cta *{box-sizing:border-box}
 #cta button,#cta input{font-family:inherit}
 #cta .fab{display:flex;align-items:center;gap:8px;border:0;border-radius:999px;background:linear-gradient(135deg,#E8638F,#C2406D);color:#fff;padding:13px 20px;font-size:15px;font-weight:700;line-height:1;cursor:pointer;box-shadow:0 10px 26px -8px rgba(194,64,109,.65);transition:transform .15s}
+#cta .fab svg{flex:none}
 #cta .fab:hover{transform:translateY(-2px)}
 #cta .fab:focus-visible,#cta button:focus-visible,#cta input:focus-visible{outline:3px solid #3b2a2a;outline-offset:2px}
-#cta .pn{position:absolute;right:0;bottom:62px;width:min(380px,calc(100vw - 32px));height:min(540px,calc(100vh - 110px));display:flex;flex-direction:column;background:#fffaf8;border:1px solid rgba(90,40,25,.12);border-radius:24px;overflow:hidden;box-shadow:0 30px 60px -20px rgba(90,40,25,.5);animation:ctaIn .22s ease-out}
+#cta .pn{position:absolute;right:0;bottom:62px;width:min(380px,calc(100vw - 32px));height:min(540px,calc(100vh - 110px));height:min(540px,calc(100dvh - 110px));display:flex;flex-direction:column;background:#fffaf8;border:1px solid rgba(90,40,25,.12);border-radius:24px;overflow:hidden;box-shadow:0 30px 60px -20px rgba(90,40,25,.5);animation:ctaIn .22s ease-out}
 #cta .pn[hidden]{display:none}
 @keyframes ctaIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
 #cta .hd{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#E8638F,#C2406D);color:#fff;padding:14px 14px 14px 16px}
