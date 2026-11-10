@@ -1,4 +1,4 @@
-// Asistente de chat de Cattleya v4 (botón flotante). Llama a /api/asistente.
+// Asistente de chat de Cattleya v5 (botón flotante). Llama a /api/asistente.
 (() => {
 'use strict';
 const WA = 'https://wa.me/584247167293?text=' + encodeURIComponent('Hola! Vengo de la página de Cattleya y quiero hacer una consulta 🌸');
@@ -28,6 +28,10 @@ st.textContent = `
 #cta .m{max-width:84%;padding:9px 13px;border-radius:16px;font-size:14px;line-height:1.5;color:#3b2a2a;white-space:pre-wrap;overflow-wrap:anywhere}
 #cta .b{align-self:flex-start;background:#fff;border:1px solid rgba(90,40,25,.1);border-bottom-left-radius:5px;box-shadow:0 2px 6px -3px rgba(90,40,25,.25)}
 #cta .u{align-self:flex-end;background:linear-gradient(135deg,#E8638F,#C2406D);color:#fff;border-bottom-right-radius:5px}
+#cta .fl{font:inherit;font-weight:700;color:#A8345E;background:#fdeef3;border:0;border-bottom:2px solid #E8A9BF;border-radius:6px;padding:0 4px;cursor:pointer;animation:ctaLuz 2.4s ease-in-out infinite}
+#cta .fl:hover{background:#fbd9e5}
+@keyframes ctaLuz{0%,100%{box-shadow:0 0 0 0 rgba(232,99,143,0)}50%{box-shadow:0 0 10px 2px rgba(232,99,143,.5)}}
+#cta .tip{align-self:flex-start;font-size:12px;color:#7a6565;margin:-2px 4px 0}
 #cta .dots{display:inline-flex;gap:4px;padding:4px 2px}
 #cta .dots i{width:7px;height:7px;border-radius:50%;background:#C2406D;opacity:.35;animation:ctaDot 1s infinite}
 #cta .dots i:nth-child(2){animation-delay:.15s}
@@ -64,7 +68,7 @@ const nt = el('div', 'nt', 'Asistente con IA: puede equivocarse. Para pedidos y 
 pn.append(hd, ms, ch, f, nt); root.append(fab, pn); document.body.appendChild(root);
 ['pointerdown', 'mousedown', 'touchstart', 'click'].forEach(ev => root.addEventListener(ev, e => e.stopPropagation()));
 
-const hist = []; let busy = false, enviados = 0, cat = null, saludo = false;
+const hist = []; let busy = false, enviados = 0, cat = null, saludo = false, nombres = [], tipDado = false;
 try { enviados = +sessionStorage.getItem('cta-n') || 0; } catch (_) {}
 
 const limpiar = (t) => String(t).replace(/\*+/g, '').replace(/^\s*[-•·]\s+/gm, '').replace(/`/g, '').trim();
@@ -88,8 +92,46 @@ async function catalogo() {
     if (x.f) { if (!mapa.has(x.f)) continue; if (!x.ok) mapa.delete(x.f); else if (x.n) mapa.set(x.f, { f: x.f, n: x.n, c: x.c || mapa.get(x.f).c }); }
     else if (x.ok && x.n) nuevas.push({ n: x.n, c: x.c });
   }
-  cat = [...new Set([...nuevas, ...mapa.values()].map(x => String(x.n).slice(0, 50) + ' (' + String(x.c || '').slice(0, 20) + ')'))];
+  const todas = [...nuevas, ...mapa.values()];
+  nombres = [...new Set(todas.map(x => String(x.n).slice(0, 50)))];
+  cat = [...new Set(todas.map(x => String(x.n).slice(0, 50) + ' (' + String(x.c || '').slice(0, 20) + ')'))];
   return cat;
+}
+
+// Nombres de flores dentro de la respuesta: se resaltan y al tocarlos abren esa flor del catálogo.
+const plano = (t) => t.toLowerCase().replace(/[áàä]/g, 'a').replace(/[éèë]/g, 'e').replace(/[íìï]/g, 'i').replace(/[óòö]/g, 'o').replace(/[úùü]/g, 'u');
+const letra = (c) => !!c && /[\p{L}\p{N}]/u.test(c);
+function buscar(texto) {
+  const p = plano(texto), hits = [];
+  for (const n of [...nombres].sort((a, b) => b.length - a.length)) {
+    const q = plano(n.trim()); if (q.length < 3) continue;
+    const unaPal = !/\s/.test(q);
+    for (let i = p.indexOf(q); i !== -1; i = p.indexOf(q, i + q.length)) {
+      const fin = i + q.length;
+      if (letra(p[i - 1]) || letra(p[fin])) continue;
+      if (hits.some(h => i < h.fin && fin > h.i)) continue;
+      if (unaPal && texto[i] === texto[i].toLowerCase()) continue; // "rosa" como color no cuenta
+      hits.push({ i, fin, n });
+    }
+  }
+  return hits.sort((a, b) => a.i - b.i);
+}
+function verFlor(n) {
+  if (matchMedia('(max-width:700px)').matches) { pn.hidden = true; fab.setAttribute('aria-expanded', 'false'); }
+  const q = plano(n.trim());
+  const c = [...document.querySelectorAll('#grid .card')].find(x => plano((x.dataset.n || '').trim()) === q);
+  if (c) c.click(); else { const s = document.getElementById('catalogo'); if (s) s.scrollIntoView({ behavior: 'smooth' }); }
+}
+function pintar(nodo, texto) {
+  nodo.textContent = ''; nodo.removeAttribute('aria-label');
+  const hits = buscar(texto); let pos = 0;
+  for (const h of hits) {
+    if (h.i > pos) nodo.appendChild(document.createTextNode(texto.slice(pos, h.i)));
+    const b = el('button', 'fl', texto.slice(h.i, h.fin)); b.type = 'button'; b.title = 'Ver esta flor'; b.onclick = () => verFlor(h.n);
+    nodo.appendChild(b); pos = h.fin;
+  }
+  if (pos < texto.length) nodo.appendChild(document.createTextNode(texto.slice(pos)));
+  return hits.length;
 }
 
 async function enviar(texto) {
@@ -108,7 +150,8 @@ async function enviar(texto) {
     });
     const j = await r.json().catch(() => ({}));
     if (!r.ok || !j.t) throw 0;
-    const lim = limpiar(j.t); esp.textContent = lim; hist.push({ r: 'a', t: lim });
+    const lim = limpiar(j.t); const nh = pintar(esp, lim); hist.push({ r: 'a', t: lim });
+    if (nh && !tipDado) { tipDado = true; add('tip', 'Toca el nombre resaltado para ver la flor.'); }
   } catch (_) { esp.textContent = FALLO; hist.pop(); }
   wa(); busy = false; sb.disabled = false; inp.focus();
 }
