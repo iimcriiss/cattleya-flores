@@ -1,4 +1,4 @@
-// Asistente de chat de Cattleya v5 (botón flotante). Llama a /api/asistente.
+// Asistente de chat de Cattleya v6 (botón flotante). Llama a /api/asistente.
 (() => {
 'use strict';
 const WA = 'https://wa.me/584247167293?text=' + encodeURIComponent('Hola! Vengo de la página de Cattleya y quiero hacer una consulta 🌸');
@@ -28,9 +28,9 @@ st.textContent = `
 #cta .m{max-width:84%;padding:9px 13px;border-radius:16px;font-size:14px;line-height:1.5;color:#3b2a2a;white-space:pre-wrap;overflow-wrap:anywhere}
 #cta .b{align-self:flex-start;background:#fff;border:1px solid rgba(90,40,25,.1);border-bottom-left-radius:5px;box-shadow:0 2px 6px -3px rgba(90,40,25,.25)}
 #cta .u{align-self:flex-end;background:linear-gradient(135deg,#E8638F,#C2406D);color:#fff;border-bottom-right-radius:5px}
-#cta .fl{font:inherit;font-weight:700;color:#A8345E;background:#fdeef3;border:0;border-bottom:2px solid #E8A9BF;border-radius:6px;padding:0 4px;cursor:pointer;animation:ctaLuz 2.4s ease-in-out infinite}
-#cta .fl:hover{background:#fbd9e5}
-@keyframes ctaLuz{0%,100%{box-shadow:0 0 0 0 rgba(232,99,143,0)}50%{box-shadow:0 0 10px 2px rgba(232,99,143,.5)}}
+#cta .fl{font:inherit;font-weight:700;color:#C2406D;background:none;border:0;padding:0;margin:0;cursor:pointer;text-decoration:underline;text-decoration-color:rgba(232,99,143,.5);text-decoration-thickness:1.5px;text-underline-offset:3px;animation:ctaLuz 2.4s ease-in-out infinite}
+#cta .fl:hover{color:#A8345E;text-decoration-color:#C2406D}
+@keyframes ctaLuz{0%,100%{text-shadow:0 0 0 rgba(232,99,143,0)}50%{text-shadow:0 0 8px rgba(232,99,143,.9),0 0 16px rgba(232,99,143,.45)}}
 #cta .tip{align-self:flex-start;font-size:12px;color:#7a6565;margin:-2px 4px 0}
 #cta .dots{display:inline-flex;gap:4px;padding:4px 2px}
 #cta .dots i{width:7px;height:7px;border-radius:50%;background:#C2406D;opacity:.35;animation:ctaDot 1s infinite}
