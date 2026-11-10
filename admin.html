@@ -142,6 +142,14 @@
   .iamsg{min-height:1.3em;margin:6px 0 0}
   .iamsg.mal{color:var(--bad);font-weight:700}
   .iaout{min-height:140px;margin-top:6px}
+  #fdiamsg{margin-bottom:14px}
+  @property --ang{syntax:'<angle>';initial-value:0deg;inherits:false}
+  .iaring{position:relative;isolation:isolate;display:inline-block;padding:2px;border-radius:99px}
+  .iaring,.iaring::before{background:conic-gradient(from var(--ang),#4285F4,#9B72CB,#D96570,#F4B400,#34A853,#4285F4);animation:iagiro 3s linear infinite}
+  .iaring::before{content:"";position:absolute;inset:0;border-radius:inherit;filter:blur(9px);opacity:.5;z-index:-1}
+  .iaring>.sm{display:block;margin:0;border:0;border-radius:99px;background:var(--card,#fff)}
+  @keyframes iagiro{to{--ang:360deg}}
+  @media (prefers-reduced-motion:reduce){.iaring,.iaring::before{animation:none}}
   .iaw{max-width:720px}
   .iaw .fld{margin-bottom:14px}
   .nota{margin:0 0 12px;padding:10px 13px;border-radius:12px;background:#FFF3F0;color:var(--mut);font-size:.85rem}
@@ -254,7 +262,7 @@
             <small>Sale en la ventana cuando alguien toca la flor.</small>
           </label>
           <div class="iab">
-            <button type="button" class="sm" id="fdia">✨ Escribir con IA</button>
+            <span class="iaring"><button type="button" class="sm" id="fdia">Escribir con IA</button></span>
             <small>Usa el nombre, la categoría y el tipo. Si ya escribiste algo en la descripción, la IA lo toma como pista.</small>
           </div>
           <p class="iamsg" id="fdiamsg" role="status"></p>
