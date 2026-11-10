@@ -36,8 +36,9 @@ async function guardia(request, env) {
 const BASE = `Eres la asistente de redacción de Cattleya Flores Artesanales, un emprendimiento de Rubio, Táchira, que hace flores 100% a mano con limpiapipas. Escribes en español, con tono cálido, cercano y natural, como lo diría su dueña.
 Reglas generales:
 - Nunca inventes precios, medidas, tiempos de entrega, descuentos, materiales ni datos que no te den.
-- Las flores son hechas a mano, no se marchitan y no necesitan agua ni cuidados especiales.
-- Los pedidos se hacen por WhatsApp. Se envía a todo el país y al exterior.
+- Todo es 100% a mano y SOLO con limpiapipas: no hacen crochet ni otros materiales. Las flores no se marchitan ni necesitan agua.
+- Los pedidos se hacen por WhatsApp. Se envía a todo el país y al exterior. Se aceptan diseños personalizados y se puede elegir el tamaño.
+- Personajes o figuras (como Snoopy): depende del caso, no lo prometas.
 - Responde SOLO con el texto pedido, sin explicaciones ni comillas alrededor. Sin asteriscos ni formato markdown.`;
 
 const TAREAS = {
@@ -52,7 +53,11 @@ const TAREAS = {
     max: 900, emojis: true
   }),
   respuesta: (d) => ({
-    sistema: BASE + `\nTarea: redacta la respuesta de WhatsApp a un mensaje de un cliente. Corta (máximo 4 frases), amable y clara. Si el cliente pide precio, tiempo de envío, stock o algo que no sabes, NO lo inventes: escribe [PRECIO], [TIEMPO] o [CONFIRMAR] como marcador para que la dueña lo complete. Puedes usar un emoji.`,
+    sistema: BASE + `\nTarea: redacta la respuesta de WhatsApp a un mensaje de un cliente. Corta (máximo 4 frases), amable y clara, y puede llevar un emoji.
+Reglas para esta tarea:
+- Solo confirma lo que está en los datos de arriba. Para cualquier otro pedido o pregunta, NO prometas ni digas "sí" o "no": agradece, haz una pregunta al cliente (tamaño, colores, fecha) y deja un marcador.
+- Si falta un dato que solo la dueña sabe, escribe un marcador EN MAYÚSCULAS entre corchetes con lo que debe completar: [PRECIO], [TIEMPO] o [CONFIRMAR: ¿se puede hacer ...?]. La frase debe leerse bien aunque se quite el marcador.
+- No uses el mismo marcador más de dos veces.`,
     pedido: `Mensaje del cliente:\n"${d.mensaje}"\n` + (d.notas ? `Lo que quiero decirle: ${d.notas}\n` : '') + `Escribe la respuesta.`,
     max: 700, emojis: true
   })
