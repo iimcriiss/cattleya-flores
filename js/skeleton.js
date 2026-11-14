@@ -1,4 +1,4 @@
-// Marca con .ok cada foto del catálogo cuando termina de cargar, para quitarle el skeleton (el brillo de carga).
+// Quita el skeleton (la flor que late) cuando la foto termina de cargar: en el catálogo y en la ventana de cada flor.
 (function () {
   var SEL = '#grid .card img, .acc img';
   function listo(i) { i.classList.add('ok'); }
@@ -8,6 +8,17 @@
     i.addEventListener('error', function () { listo(i); }, { once: true });
   }
   function buscar(raiz) { raiz.querySelectorAll(SEL).forEach(ver); }
+  var z = document.querySelector('#dlg .zm img');
+  if (z) {
+    var fig = z.parentElement;
+    var quitar = function () { fig.classList.remove('cargando'); };
+    var revisar = function () {
+      if (!z.getAttribute('src') || (z.complete && z.naturalWidth)) quitar(); else fig.classList.add('cargando');
+    };
+    z.addEventListener('load', quitar);
+    z.addEventListener('error', quitar);
+    new MutationObserver(revisar).observe(z, { attributes: true, attributeFilter: ['src'] });
+  }
   buscar(document);
   // El catálogo se arma con JavaScript, así que también se vigilan las fotos que aparecen después.
   new MutationObserver(function (cambios) {
