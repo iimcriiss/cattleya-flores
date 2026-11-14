@@ -310,3 +310,8 @@ dialog[open]{animation:pop .35s cubic-bezier(.2,.9,.3,1.2)}
 }
 /* Reseña: en celulares el formulario es más alto que la pantalla; ahora se desplaza dentro del cuadro */
 #rvdlg{max-height:85vh;max-height:92dvh;overflow-y:auto;overscroll-behavior:contain}
+
+/* Skeleton de carga: cuadro rosado suave que brilla mientras llega la foto (js/skeleton.js le pone .ok al cargar) */
+.card img:not(.ok),.acc img:not(.ok){background-color:#f7e6e3;background-image:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.7) 50%,transparent 70%);background-size:200% 100%;animation:sk 1.3s linear infinite}
+@keyframes sk{from{background-position:150% 0}to{background-position:-50% 0}}
+@media(prefers-reduced-motion:reduce){.card img:not(.ok),.acc img:not(.ok){animation:none}}
