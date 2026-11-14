@@ -310,3 +310,7 @@ dialog[open]{animation:pop .35s cubic-bezier(.2,.9,.3,1.2)}
 }
 /* Reseña: en celulares el formulario es más alto que la pantalla; ahora se desplaza dentro del cuadro */
 #rvdlg{max-height:85vh;max-height:92dvh;overflow-y:auto;overscroll-behavior:contain}
+
+/* Skeleton de carga: una flor late en el centro mientras llega la foto (js/skeleton.js quita el efecto al cargar) */
+.card img:not(.ok),.acc img:not(.ok),.zm.cargando{background-color:#f7e6e3;background-image:url(../img/skeleton-flor.svg?v=4);background-repeat:no-repeat;background-position:center;background-size:42%}
+@media(max-width:700px){.zm.cargando{aspect-ratio:3/4;max-height:58vh}}
